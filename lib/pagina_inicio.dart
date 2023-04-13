@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class PaginaIncio extends StatefulWidget {
-  const PaginaIncio({Key? key}) : super(key: key);
+class PaginaInicio extends StatefulWidget {
+  const PaginaInicio({Key? key}) : super(key: key);
 
   @override
-  State<PaginaIncio> createState() => _PaginaIncio();
+  State<PaginaInicio> createState() => _PaginaInicio();
 }
 
-class _PaginaIncio extends State<PaginaIncio>{
+class _PaginaInicio extends State<PaginaInicio>{
   @override
   void initState() {
     super.initState();

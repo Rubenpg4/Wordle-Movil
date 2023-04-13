@@ -13,14 +13,7 @@ class WordleApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
       ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text(titulo),
-        ),
-        body: const SafeArea(
-          child: PaginaIncio(),
-        ),
-      ),
+      home: PaginaInicio()
     );
   }
 }
