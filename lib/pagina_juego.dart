@@ -21,7 +21,7 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
   late int nIntentos;
   late int nLetras;
 
-  late List<List<String>> tablero;
+  late List<List<String>> tablero = [];
 
   int letraActual = 0;
   int intentoActual = 0;
@@ -31,10 +31,13 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
     nIntentos = 4;
     nLetras = 7;
 
+    tablero = new List<List<String>>();
     for (int i = 0; i < nIntentos; i++) {
+      List<String> list = new List<String>();
       for (int j = 0; j < nLetras; j++) {
-        tablero[i][j] = '';
+        tablero[i][j] = ' ';
       }
+      tablero.add(list);
     }
 
     super.initState();
@@ -47,7 +50,7 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
       child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
             altoPantalla = constraints.maxHeight;
-            altoTerrenoJuego = altoPantalla * 0.57;
+            altoTerrenoJuego = altoPantalla * 0.30;
 
             return Stack(
               children: <Widget>[
