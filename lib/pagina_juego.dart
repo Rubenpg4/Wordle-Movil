@@ -17,6 +17,10 @@ class PaginaJuego extends StatefulWidget {
 class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixin {
   double altoPantalla = 0.0;
   double altoTerrenoJuego = 0.0;
+  double altoTeclado = 0.0;
+
+  double proporcionIntentosLetras = 0.0;
+  double altoCasilla = 0.0;
 
   late int nIntentos;
   late int nLetras;
@@ -28,14 +32,13 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
 
   @override
   void initState() {
-    nIntentos = 4;
     nLetras = 7;
+    nIntentos = 5;
 
-    tablero = new List<List<String>>();
     for (int i = 0; i < nIntentos; i++) {
-      List<String> list = new List<String>();
+      List<String> list = [];
       for (int j = 0; j < nLetras; j++) {
-        tablero[i][j] = ' ';
+        list.add('');
       }
       tablero.add(list);
     }
@@ -50,7 +53,14 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
       child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
             altoPantalla = constraints.maxHeight;
-            altoTerrenoJuego = altoPantalla * 0.30;
+            altoTerrenoJuego = altoPantalla * 0.60;
+            altoTeclado = altoPantalla * 0.40;
+
+            if(nIntentos > nLetras)
+              proporcionIntentosLetras = nIntentos / nLetras;
+            else if(nIntentos < nLetras)
+              proporcionIntentosLetras = nLetras / nIntentos;
+
 
             return Stack(
               children: <Widget>[
@@ -74,9 +84,20 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
   }
 
   Widget _TerrenoJuego() {
+    EdgeInsetsGeometry? paddingContrainer;
+    if (this.nIntentos >= this.nLetras) {
+      paddingContrainer = EdgeInsets.symmetric(horizontal: 40.0 * this.proporcionIntentosLetras);
+      altoCasilla = altoTerrenoJuego/nIntentos;
+    }
+    else if (this.nIntentos < this.nLetras) {
+      paddingContrainer = EdgeInsets.only(bottom: 50.0 * this.proporcionIntentosLetras);
+      altoCasilla = altoTerrenoJuego/nLetras;
+    }
+
     return Align(
       alignment: Alignment.bottomCenter,
       child: Container(
+        padding: paddingContrainer,
         height: altoTerrenoJuego,
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -101,7 +122,7 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
   Widget _CasillaJuego() {
     return Expanded(
       child: Container (
-        height: altoTerrenoJuego/nIntentos,
+        height: altoCasilla,
         decoration: BoxDecoration(
           border: Border.all(color: Colors.black),
           color: Colors.white,
@@ -115,6 +136,16 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
             ),
           ],
         ),
+        child: Center(
+          child: Text(
+            'A',
+            style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -123,10 +154,11 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
     return Align(
       alignment: Alignment.bottomCenter,
       child: Container(
+        height: altoTeclado,
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            SizedBox(height: 45,),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 145),
               child: Row(
