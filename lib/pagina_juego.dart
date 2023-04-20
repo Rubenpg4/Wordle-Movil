@@ -15,22 +15,48 @@ class PaginaJuego extends StatefulWidget {
 }
 
 class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixin {
-  double anchoPantalla= 0.0;
+  double altoPantalla = 0.0;
+  double altoTerrenoJuego = 0.0;
+
+  late int nIntentos;
+  late int nLetras;
+
+  late List<List<String>> tablero;
+
+  int letraActual = 0;
+  int intentoActual = 0;
 
   @override
   void initState() {
+    nIntentos = 4;
+    nLetras = 7;
+
+    for (int i = 0; i < nIntentos; i++) {
+      for (int j = 0; j < nLetras; j++) {
+        tablero[i][j] = '';
+      }
+    }
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black87,
+      color: Color.fromRGBO(30, 30, 30, 1),
       child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
-            anchoPantalla = constraints.maxWidth;
+            altoPantalla = constraints.maxHeight;
+            altoTerrenoJuego = altoPantalla * 0.57;
+
             return Stack(
               children: <Widget>[
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  left: 10,
+                  child: _TerrenoJuego(),
+                ),
                 Positioned(
                   bottom: 10,
                   right: 5,
@@ -44,6 +70,52 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
     );
   }
 
+  Widget _TerrenoJuego() {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Container(
+        height: altoTerrenoJuego,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (int i = 0; i < this.nIntentos; i++) ...[
+              Container(
+                child: Row(
+                  children: [
+                    for (int j = 0; j < this.nLetras; j++) ...[
+                      _CasillaJuego(),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _CasillaJuego() {
+    return Expanded(
+      child: Container (
+        height: altoTerrenoJuego/nIntentos,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.black),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12.withOpacity(0.5),
+              spreadRadius: 2,
+              blurRadius: 2,
+              offset: Offset(2, 5),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _Teclado() {
     return Align(
       alignment: Alignment.bottomCenter,
@@ -51,6 +123,7 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            SizedBox(height: 45,),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 145),
               child: Row(
@@ -117,8 +190,8 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
     return Expanded(
       child: InkWell(
         onTap: () {
-          // Implementa aquí la acción que debe realizar cada tecla al ser pulsada
           print("Tecla presionada: $contenido");
+          //if (this.letraActual > this.nLetras)
         },
         child: Container(
           height: 50,
