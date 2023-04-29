@@ -1,16 +1,50 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:async';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'package:flutter/services.dart';
+
 
 class Ranking extends StatelessWidget {
   const Ranking({Key? key}) : super(key: key);
 
+  Future<void> copyRankingFile() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final configFile = File('${directory.path}/ranking.txt');
+
+    if (!await configFile.exists()) {
+      await configFile.writeAsString('');
+    }
+  }
+
+  Future<List<String>> leerRanking() async {
+    final ruta = await getApplicationDocumentsDirectory();
+    File file = File('${ruta.path}/ranking.txt');
+    List<String> usuarios = [];
+
+    if (await file.exists()) {
+      String contenido = await file.readAsString();
+      usuarios = contenido.split('');
+    }
+    return usuarios;
+  }
+  List<String> listaUsuarios;
+
+  void obtenerRanking() async {
+    List<String> listaUsuarios = await leerRanking();
+  }
+
   @override
   Widget build(BuildContext context) {
+    obtenerRanking();
     return MaterialApp(
       home: Scaffold(
         body: Center(
           child: Container(
+
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -27,32 +61,11 @@ class Ranking extends StatelessWidget {
                   ),
                 ),
                 Expanded(
-                  child: FutureBuilder(
-                    future: _readPlayersFile(),
-                    builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        return ListView.builder(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: MediaQuery.of(context).size.width * 0.1),
-                          itemCount: snapshot.data?.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return Padding(
-                              padding: EdgeInsets.only(top: 10),
-                              child: Text(
-                                '${index + 1}. ${snapshot.data?[index]}',
-                                style: TextStyle(
-                                  fontSize: MediaQuery.of(context).size.width * 0.05,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      } else {
-                        return CircularProgressIndicator();
-                      }
-                    },
-                  ),
+
+                  child: Container(
+
+                    for(int i=0;i<lista)
+                  )
                 ),
                 Padding(
                   padding: EdgeInsets.fromLTRB(
@@ -93,13 +106,6 @@ class Ranking extends StatelessWidget {
     );
   }
 
-  Future<List<String>> _readPlayersFile() async {
-    final file = File('path/to/your/players_file.txt');
-    List<String> players = [];
-    if (await file.exists()) {
-      players = await file.readAsLines();
-    }
-    return players;
-  }
+
 
 }
