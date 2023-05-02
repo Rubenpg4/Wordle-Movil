@@ -1,7 +1,13 @@
 import 'dart:math';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_wordle/ContainerJuego.dart';
 import 'package:flutter_wordle/ContainerLetra.dart';
+import 'package:flutter_wordle/pagina_inicio.dart';
 
 enum tipoPista {
   bomba("assets/iconos/bomba.png"),
@@ -33,9 +39,12 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
   double paddingUltimaColumaTeclado = 0.0;
   double paddingBotonesPistas = 0.0;
 
+  late TipoIdioma tipoIdioma;
   late int nIntentos;
   late int nLetras;
   late String palabra;
+
+  late List<String> palabrasFiltradas = [];
 
   int letraActual = 0;
   int intentoActual = 0;
@@ -49,115 +58,175 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
   int bombasUsadas = 0, lupasUsadas = 0;
 
   late AnimationController controladorAnimacion;
+  bool cargandoConfiguracion = true;
 
   @override
   void initState() {
-    nLetras = 5;
-    nIntentos = 5;
-    palabra = "AVION";
+    Future.delayed(Duration.zero, () async {
+      await leerConfig();
+      palabrasFiltradas = await filtrarPalabras();
 
-    for (int i = 0; i < nIntentos; i++) {
-      List<ContainerJuego> list = [];
-      for (int j = 0; j < nLetras; j++) {
-        ContainerJuego miContainer = ContainerJuego();
-        list.add(miContainer);
+      leerConfig().whenComplete(() {
+        filtrarPalabras().whenComplete(() {
+          setState(() {
+            cargandoConfiguracion = false;
+          });
+        });
+      });
+      /*if (idioma == 'espana') {
+        if (nLetras == 4) {
+          busquedaAleatoria('espana4');
+        } else {
+          if (nLetras == 5) {
+            busquedaAleatoria('espana5');
+          } else { //6 letras
+            busquedaAleatoria('espana6');
+          }
+        }
+      } else {
+        if (idioma == 'francia') {
+          if (nLetras == 4) {
+            busquedaAleatoria('francia4');
+          } else {
+            if (nLetras == 5) {
+              busquedaAleatoria('francia5');
+            } else { //6 letras
+              busquedaAleatoria('francia6');
+            }
+          }
+        } else { //italia
+          if (nLetras == 4) {
+            busquedaAleatoria('italia4');
+          } else {
+            if (nLetras == 5) {
+              busquedaAleatoria('italia5');
+            } else { //6 letras
+              busquedaAleatoria('italia6');
+            }
+          }
+        }
+      }*/
+
+
+
+      palabra = "AVION";
+
+      for (int i = 0; i < nIntentos; i++) {
+        List<ContainerJuego> list = [];
+        for (int j = 0; j < nLetras; j++) {
+          ContainerJuego miContainer = ContainerJuego();
+          list.add(miContainer);
+        }
+        tableroJuego.add(list);
       }
-      tableroJuego.add(list);
-    }
-    tableroJuego[0][0].tipoBorde = TipoBorde.Activo;
+      tableroJuego[0][0].tipoBorde = TipoBorde.Activo;
 
-    mapaTeclado = {
-      'Q': ContainerLetra(letra: 'Q'),
-      'W': ContainerLetra(letra: 'W'),
-      'E': ContainerLetra(letra: 'E'),
-      'R': ContainerLetra(letra: 'R'),
-      'T': ContainerLetra(letra: 'T'),
-      'Y': ContainerLetra(letra: 'Y'),
-      'U': ContainerLetra(letra: 'U'),
-      'I': ContainerLetra(letra: 'I'),
-      'O': ContainerLetra(letra: 'O'),
-      'P': ContainerLetra(letra: 'P'),
-      'A': ContainerLetra(letra: 'A'),
-      'S': ContainerLetra(letra: 'S'),
-      'D': ContainerLetra(letra: 'D'),
-      'F': ContainerLetra(letra: 'F'),
-      'G': ContainerLetra(letra: 'G'),
-      'H': ContainerLetra(letra: 'H'),
-      'J': ContainerLetra(letra: 'J'),
-      'K': ContainerLetra(letra: 'K'),
-      'L': ContainerLetra(letra: 'L'),
-      'Ñ': ContainerLetra(letra: 'Ñ'),
-      'Z': ContainerLetra(letra: 'Z'),
-      'X': ContainerLetra(letra: 'X'),
-      'C': ContainerLetra(letra: 'C'),
-      'V': ContainerLetra(letra: 'V'),
-      'B': ContainerLetra(letra: 'B'),
-      'N': ContainerLetra(letra: 'N'),
-      'M': ContainerLetra(letra: 'M'),
-    };
+      mapaTeclado = {
+        'Q': ContainerLetra(letra: 'Q'),
+        'W': ContainerLetra(letra: 'W'),
+        'E': ContainerLetra(letra: 'E'),
+        'R': ContainerLetra(letra: 'R'),
+        'T': ContainerLetra(letra: 'T'),
+        'Y': ContainerLetra(letra: 'Y'),
+        'U': ContainerLetra(letra: 'U'),
+        'I': ContainerLetra(letra: 'I'),
+        'O': ContainerLetra(letra: 'O'),
+        'P': ContainerLetra(letra: 'P'),
+        'A': ContainerLetra(letra: 'A'),
+        'S': ContainerLetra(letra: 'S'),
+        'D': ContainerLetra(letra: 'D'),
+        'F': ContainerLetra(letra: 'F'),
+        'G': ContainerLetra(letra: 'G'),
+        'H': ContainerLetra(letra: 'H'),
+        'J': ContainerLetra(letra: 'J'),
+        'K': ContainerLetra(letra: 'K'),
+        'L': ContainerLetra(letra: 'L'),
+        'Ñ': ContainerLetra(letra: 'Ñ'),
+        'Z': ContainerLetra(letra: 'Z'),
+        'X': ContainerLetra(letra: 'X'),
+        'C': ContainerLetra(letra: 'C'),
+        'V': ContainerLetra(letra: 'V'),
+        'B': ContainerLetra(letra: 'B'),
+        'N': ContainerLetra(letra: 'N'),
+        'M': ContainerLetra(letra: 'M'),
+      };
 
-    inicio = DateTime.now();
+      inicio = DateTime.now();
+
+    });
 
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Color.fromRGBO(30, 30, 30, 1),
-      child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            altoPantalla = constraints.maxHeight;
-            anchoPantalla = constraints.maxWidth;
+    return MaterialApp(
+      home: Scaffold(
+        body: Container(
+          color: Color.fromRGBO(30, 30, 30, 1),
+          child: cargandoConfiguracion ? Center(
+            child: CircularProgressIndicator(
+              color: Colors.white, // Cambiar color a azul
+            ),
+          )
+              : Container (
+          color: Color.fromRGBO(30, 30, 30, 1),
+            child: LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                altoPantalla = constraints.maxHeight;
+                anchoPantalla = constraints.maxWidth;
 
-            altoNatbar = altoPantalla * 0.075;
-            altoTerrenoJuego = altoPantalla * 0.475;
-            altoTeclado = altoPantalla * 0.45;
+                altoNatbar = altoPantalla * 0.075;
+                altoTerrenoJuego = altoPantalla * 0.475;
+                altoTeclado = altoPantalla * 0.45;
 
-            if(nIntentos > nLetras)
-              proporcionIntentosLetras = nIntentos / nLetras;
-            else if(nIntentos < nLetras)
-              proporcionIntentosLetras = nLetras / nIntentos;
+                if(nIntentos > nLetras)
+                  proporcionIntentosLetras = nIntentos / nLetras;
+                else if(nIntentos < nLetras)
+                  proporcionIntentosLetras = nLetras / nIntentos;
 
-            paddingUltimaColumaTeclado = anchoPantalla * 0.05;
-            paddingBotonesPistas = anchoPantalla * 0.375;
+                paddingUltimaColumaTeclado = anchoPantalla * 0.05;
+                paddingBotonesPistas = anchoPantalla * 0.375;
 
-            return Stack(
-              children: <Widget>[
-                Positioned(
-                  top: 10,
-                  left: 10,
-                  child: _BotonAtras()
-                ),
-                Positioned(
-                  top: 10,
-                  left: anchoPantalla * 0.3,
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Container(
-                      child: Image.asset(
-                        'assets/iconos/logo.png',
-                        height: altoNatbar * 1.2,
-                      ),
+                return Stack(
+                  children: <Widget>[
+                    Positioned(
+                      top: 10,
+                      left: 10,
+                      child: _BotonAtras()
                     ),
-                  )
-                ),
-                Positioned(
-                  top: 15 + altoNatbar,
-                  right: 10,
-                  left: 10,
-                  child: _TerrenoJuego(),
-                ),
-                Positioned(
-                  bottom: 10,
-                  right: 5,
-                  left: 5,
-                  child: _Teclado(),
-                ),
-              ],
-            );
-          }
-      )
+                    Positioned(
+                      top: 10,
+                      left: anchoPantalla * 0.3,
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Container(
+                          child: Image.asset(
+                            'assets/iconos/logo.png',
+                            height: altoNatbar * 1.2,
+                          ),
+                        ),
+                      )
+                    ),
+                    Positioned(
+                      top: 15 + altoNatbar,
+                      right: 10,
+                      left: 10,
+                      child: _TerrenoJuego(),
+                    ),
+                    Positioned(
+                      bottom: 10,
+                      right: 5,
+                      left: 5,
+                      child: _Teclado(),
+                    ),
+                  ],
+                );
+              }
+            )
+          ),
+        ),
+      ),
     );
   }
 
@@ -168,7 +237,10 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
       alignment: Alignment.center,
       child: ElevatedButton (
         onPressed: () {
-
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => PaginaIncio()),
+          );
         },
         child: Text("<"),
         style: ElevatedButton.styleFrom(
@@ -630,6 +702,26 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
     );
   }
 
+  Future<void> leerConfig() async {
+    final ruta = await getApplicationDocumentsDirectory();
+    File file = File('${ruta.path}/config.txt');
 
+    if (await file.exists()) {
+      String contenido = await file.readAsString();
+      List<String> opciones = contenido.split(';');
+
+      setState(() {
+        for (int i = 0; i < 3; i++) {
+          if (opciones[i].trim().isNotEmpty) {
+            if (i == 0) tipoIdioma = TipoIdioma.buscarIdioma(opciones[i]);
+
+            if (i == 1) nLetras = int.parse(opciones[i]);
+
+            if (i == 2) nIntentos = int.parse(opciones[i]);
+          }
+        }
+      });
+    }
+  }
 
 }

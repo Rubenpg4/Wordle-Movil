@@ -13,7 +13,7 @@ enum TipoCampoJuego {
 }
 
 enum TipoBorde {
-  Activo(Colors.black, 5.0),
+  Activo(Colors.black, 4.0),
   Inactivo(Colors.black, 1.0);
 
   final Color colorBorde;
