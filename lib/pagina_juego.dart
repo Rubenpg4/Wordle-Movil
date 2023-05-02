@@ -25,6 +25,7 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
 
   double altoTerrenoJuego = 0.0;
   double altoTeclado = 0.0;
+  double altoNatbar = 0.0;
 
   double proporcionIntentosLetras = 0.0;
   double altoCasilla = 0.0;
@@ -42,6 +43,11 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
   late List<List<ContainerJuego>> tableroJuego = [];
   Map<String, ContainerLetra> mapaTeclado = {};
 
+  double puntuacion = 1.0;
+  late DateTime inicio, fin;
+  late Duration duracion;
+  int bombasUsadas = 0, lupasUsadas = 0;
+
   late AnimationController controladorAnimacion;
 
   @override
@@ -58,6 +64,7 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
       }
       tableroJuego.add(list);
     }
+    tableroJuego[0][0].tipoBorde = TipoBorde.Activo;
 
     mapaTeclado = {
       'Q': ContainerLetra(letra: 'Q'),
@@ -89,6 +96,8 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
       'M': ContainerLetra(letra: 'M'),
     };
 
+    inicio = DateTime.now();
+
     super.initState();
   }
 
@@ -101,7 +110,8 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
             altoPantalla = constraints.maxHeight;
             anchoPantalla = constraints.maxWidth;
 
-            altoTerrenoJuego = altoPantalla * 0.55;
+            altoNatbar = altoPantalla * 0.075;
+            altoTerrenoJuego = altoPantalla * 0.475;
             altoTeclado = altoPantalla * 0.45;
 
             if(nIntentos > nLetras)
@@ -116,6 +126,24 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
               children: <Widget>[
                 Positioned(
                   top: 10,
+                  left: 10,
+                  child: _BotonAtras()
+                ),
+                Positioned(
+                  top: 10,
+                  left: anchoPantalla * 0.3,
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Container(
+                      child: Image.asset(
+                        'assets/iconos/logo.png',
+                        height: altoNatbar * 1.2,
+                      ),
+                    ),
+                  )
+                ),
+                Positioned(
+                  top: 15 + altoNatbar,
                   right: 10,
                   left: 10,
                   child: _TerrenoJuego(),
@@ -133,6 +161,32 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
     );
   }
 
+  Widget _BotonAtras() {
+    return Container(
+      height: altoNatbar,
+      width: altoNatbar,
+      alignment: Alignment.center,
+      child: ElevatedButton (
+        onPressed: () {
+
+        },
+        child: Text("<"),
+        style: ElevatedButton.styleFrom(
+          primary: Colors.white,
+          onPrimary: Colors.black,
+          textStyle: TextStyle(
+            fontSize: altoNatbar * 0.80,
+            fontWeight: FontWeight.bold,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      ),
+    );
+
+  }
+
   Widget _TerrenoJuego() {
     EdgeInsetsGeometry? paddingContrainer;
     if (this.nIntentos >= this.nLetras) {
@@ -140,7 +194,7 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
       altoCasilla = altoTerrenoJuego/nIntentos;
     }
     else if (this.nIntentos < this.nLetras) {
-      paddingContrainer = EdgeInsets.only(bottom: 50.0 * this.proporcionIntentosLetras);
+      paddingContrainer = EdgeInsets.only(bottom: 50.0 * this.proporcionIntentosLetras - 15);
       altoCasilla = altoTerrenoJuego/nLetras;
     }
 
@@ -259,6 +313,11 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
           if(this.intentoActual < this.nIntentos && this.letraActual < this.nLetras) {
             setState(() {
               tableroJuego[intentoActual][letraActual++].letra = "$contenido";
+              if(letraActual < nLetras)
+                tableroJuego[intentoActual][letraActual].tipoBorde = TipoBorde.Activo;
+
+              tableroJuego[intentoActual][letraActual - 1].tipoBorde = TipoBorde.Inactivo;
+
             });
           }
         },
@@ -275,6 +334,9 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
           if(this.intentoActual < this.nIntentos && this.letraActual <= this.nLetras && this.letraActual > 0) {
             setState(() {
               tableroJuego[intentoActual][--letraActual].letra = '';
+              if(letraActual + 1 < nLetras)
+                tableroJuego[intentoActual][letraActual + 1].tipoBorde = TipoBorde.Inactivo;
+              tableroJuego[intentoActual][letraActual].tipoBorde = TipoBorde.Activo;
             });
           }
         },
@@ -313,36 +375,37 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
       width: 150,
       height: 40,
       child: ElevatedButton(
-        onPressed: () {
+        onPressed: () async {
           if(this.intentoActual < this.nIntentos) {
             if (this.letraActual >= nLetras) {
               for (int i = 0; i < this.nLetras; i++) {
-                setState(() {
-                  if (tableroJuego[intentoActual][i].letra ==
-                      palabra[i]) {
-                    tableroJuego[intentoActual][i].tipo =
-                        TipoCampoJuego.Acertado;
-                    mapaTeclado[tableroJuego[intentoActual][i].letra]
-                        ?.tipo = TipoCampoLetra.Acertado;
-                  } else
-                  if (palabra.contains(tableroJuego[intentoActual][i].letra)) {
-                    tableroJuego[intentoActual][i].tipo =
-                        TipoCampoJuego.Desubicado;
-                    if (mapaTeclado[tableroJuego[intentoActual][i].letra]
-                        ?.tipo != TipoCampoLetra.Acertado)
+                await Future.delayed(const Duration(milliseconds: 250), () {});
+                  setState(() {
+                    if (tableroJuego[intentoActual][i].letra ==
+                        palabra[i]) {
+                      tableroJuego[intentoActual][i].tipo =
+                          TipoCampoJuego.Acertado;
                       mapaTeclado[tableroJuego[intentoActual][i].letra]
-                          ?.tipo = TipoCampoLetra.Desubicado;
-                  } else {
-                    tableroJuego[intentoActual][i].tipo =
-                        TipoCampoJuego.Fallado;
-                    if (mapaTeclado[tableroJuego[intentoActual][i].letra]
-                        ?.tipo != TipoCampoLetra.Acertado &&
+                          ?.tipo = TipoCampoLetra.Acertado;
+                    } else
+                    if (palabra.contains(tableroJuego[intentoActual][i].letra)) {
+                      tableroJuego[intentoActual][i].tipo =
+                          TipoCampoJuego.Desubicado;
+                      if (mapaTeclado[tableroJuego[intentoActual][i].letra]
+                          ?.tipo != TipoCampoLetra.Acertado)
                         mapaTeclado[tableroJuego[intentoActual][i].letra]
-                            ?.tipo != TipoCampoLetra.Desubicado)
-                      mapaTeclado[tableroJuego[intentoActual][i].letra]
-                          ?.tipo = TipoCampoLetra.Fallado;
-                  }
-                });
+                            ?.tipo = TipoCampoLetra.Desubicado;
+                    } else {
+                      tableroJuego[intentoActual][i].tipo =
+                          TipoCampoJuego.Fallado;
+                      if (mapaTeclado[tableroJuego[intentoActual][i].letra]
+                          ?.tipo != TipoCampoLetra.Acertado &&
+                          mapaTeclado[tableroJuego[intentoActual][i].letra]
+                              ?.tipo != TipoCampoLetra.Desubicado)
+                        mapaTeclado[tableroJuego[intentoActual][i].letra]
+                            ?.tipo = TipoCampoLetra.Fallado;
+                    }
+                  });
               }
 
               bool gana = true;
@@ -352,46 +415,87 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
               }
 
               if (gana) {
+                fin = DateTime.now();
+                duracion = fin.difference(inicio);
+                if(bombasUsadas == 0 && lupasUsadas == 0)
+                  puntuacion = nLetras/nIntentos * 1000 - duracion.inSeconds;
+                else {
+                  if(bombasUsadas == 0)
+                    puntuacion = nLetras/nIntentos * 1000 - (duracion.inSeconds * (lupasUsadas * 2.2));
+                  else if(lupasUsadas == 0)
+                    puntuacion = nLetras/nIntentos * 1000 - (duracion.inSeconds * (bombasUsadas));
+                }
                 showDialog(
                   context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text('Victoria'),
-                      content: Text('¡Felicidades, has ganado!'),
-                      actions: <Widget>[
+                  builder: (_) => AlertDialog(
+                    title: Text(
+                      'VICTORIA',
+                      style:TextStyle(
+                        fontSize: MediaQuery.of(context).size.width * 0.09, // Tamaño de fuente
+                        fontWeight: FontWeight.bold, // Grosor de fuente
+                        fontStyle: FontStyle.italic, // Estilo de fuente
+                        color: Colors.yellowAccent, // Color del texto
+                        letterSpacing: 2.0, // Espaciado entre letras
+                        wordSpacing: 4.0, // Espaciado entre palabras
+                        shadows: [ // Sombra del texto
+                          Shadow(
+                            color: Colors.grey,
+                            offset: Offset(2.0, 2.0),
+                            blurRadius: 3.0,
+                          ),
+                        ],
+                      )),
+                      content: Text('TIEMPO, ACIERTOS...'),
+                      actions: [
                         TextButton(
-                            child: Text('Cerrar'),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            }
-                        ),
+                          onPressed: () => Navigator.pop(context),
+                          child: Text('Volver'),
+
+                        )
                       ],
-                    );
-                  },
+                      backgroundColor: Colors.green,
+                  ),
                 );
               } else {
                 setState(() {
                   intentoActual++;
                   letraActual = 0;
+                  if (intentoActual < nIntentos)
+                    tableroJuego[intentoActual][0].tipoBorde = TipoBorde.Activo;
                 });
 
                 if (intentoActual >= nIntentos) {
                   showDialog(
                     context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Text('Derrota'),
-                        content: Text('Losiento, has perdido'),
-                        actions: <Widget>[
-                          TextButton(
-                              child: Text('Cerrar'),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              }
-                          ),
-                        ],
-                      );
-                    },
+                    builder: (_) => AlertDialog(
+                      title: Text(
+                        'DERROTA',
+                        style:TextStyle(
+                          fontSize: MediaQuery.of(context).size.width * 0.09, // Tamaño de fuente
+                          fontWeight: FontWeight.bold, // Grosor de fuente
+                          fontStyle: FontStyle.italic, // Estilo de fuente
+                          color: Colors.yellowAccent, // Color del texto
+                          letterSpacing: 2.0, // Espaciado entre letras
+                          wordSpacing: 4.0, // Espaciado entre palabras
+                          shadows: [ // Sombra del texto
+                            Shadow(
+                              color: Colors.grey,
+                              offset: Offset(2.0, 2.0),
+                              blurRadius: 3.0,
+                            ),
+                          ],
+                        )
+                      ),
+                      content: Text('TIEMPO, ACIERTOS..'),
+                      actions: [
+                        TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text('Volver')
+
+                        )
+                      ],
+                      backgroundColor: Colors.red,
+                    ),
                   );
                 }
               }
@@ -445,7 +549,6 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
               }
               cont++;
             }
-            String clave1 = claves[indice1];
 
             cont = 0;
             int indice2 = random.nextInt(claves.length);
@@ -457,12 +560,12 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
               }
               cont++;
             }
-            String clave2 = claves[indice2];
 
             if(posible) {
               setState(() {
                 mapaTeclado[claves[indice1]]?.tipo = TipoCampoLetra.Fallado;
                 mapaTeclado[claves[indice2]]?.tipo = TipoCampoLetra.Fallado;
+                bombasUsadas++;
               });
             }
 
@@ -494,6 +597,7 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
             if(posible) {
               setState(() {
                 mapaTeclado[palabra[indiceRandom]]?.tipo = TipoCampoLetra.Desubicado;
+                lupasUsadas++;
               });
             }
           }

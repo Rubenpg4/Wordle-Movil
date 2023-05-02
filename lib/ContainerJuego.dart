@@ -12,7 +12,18 @@ enum TipoCampoJuego {
   const TipoCampoJuego(this.colorFondo, this.colorLetra);
 }
 
+enum TipoBorde {
+  Activo(Colors.black, 5.0),
+  Inactivo(Colors.black, 1.0);
+
+  final Color colorBorde;
+  final double anchoBorde;
+
+  const TipoBorde(this.colorBorde, this.anchoBorde);
+}
+
 class ContainerJuego extends StatelessWidget {
+  TipoBorde tipoBorde = TipoBorde.Inactivo;
   double _altoCasilla = 0.0;
   TipoCampoJuego tipo;
   String letra;
@@ -29,7 +40,7 @@ class ContainerJuego extends StatelessWidget {
             return Container(
               height: this._altoCasilla,
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.black),
+                border: Border.all(color: tipoBorde.colorBorde, width: tipoBorde.anchoBorde),
                 color: this.tipo.colorFondo,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [

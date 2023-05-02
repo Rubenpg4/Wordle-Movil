@@ -78,7 +78,7 @@ class _PaginaIncio extends State<PaginaIncio>{
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center, // Centrar verticalmente
                       children: [
-                        Image.asset('assets/italiano.png', width: iconSize),
+                        Image.asset('assets/italia.png', width: iconSize),
                       ],
                     ),
                     value: 'italiano',
