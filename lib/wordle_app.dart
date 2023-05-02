@@ -14,7 +14,7 @@ class WordleApp extends StatelessWidget {
     return MaterialApp(
       home: Scaffold(
         body: const SafeArea(
-          child: PaginaJuego(),
+          child: PaginaIncio(),
         ),
       ),
     );

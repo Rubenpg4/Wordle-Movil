@@ -45,14 +45,71 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
   late String palabra;
   late String idioma;
 
-  /*
-  void busquedaAleatoria(String nombre) async {
+  final TextEditingController _textController = TextEditingController();
+
+  int contarPalabras(List<String> lista,int longitud){
+    int cont=0;
+    for(int i=0;i<lista.length;i++){
+      if(longitud==lista[i].length){
+        cont++;
+      }
+    }
+    return cont;
+  }
+
+
+  void seleccionarIdioma(){
+    if (idioma == 'espana') {
+      if (nLetras == 4) {
+        busquedaAleatoria('espanol',4);
+      } else {
+        if (nLetras == 5) {
+          busquedaAleatoria('espanol',5);
+        } else { //6 letras
+          busquedaAleatoria('espanol',6);
+        }
+      }
+    } else {
+      if (idioma == 'francia') {
+        if (nLetras == 4) {
+          busquedaAleatoria('francia',4);
+        } else {
+          if (nLetras == 5) {
+            busquedaAleatoria('francia',5);
+          } else { //6 letras
+            busquedaAleatoria('francia',6);
+          }
+        }
+      } else { //italia
+        if (nLetras == 4) {
+          busquedaAleatoria('italia',4);
+        } else {
+          if (nLetras == 5) {
+            busquedaAleatoria('italia',5);
+          } else { //6 letras
+            busquedaAleatoria('italia',6);
+          }
+        }
+      }
+    }
+  }
+
+  void busquedaAleatoria(String nombre,int numLetras) async {
+    String palabraJuego='';
     String data = await rootBundle.loadString('assets/textos/${nombre}.txt');
     List<String> palabras = data.split(';');
-    print(data);
-    int indiceAleatorio = Random().nextInt(palabras.length);
-    String palabraJuego = palabras[indiceAleatorio];
-    print("pollaaaaaa"+palabras[indiceAleatorio]);
+    int contador=contarPalabras(palabras,numLetras);
+    int contadorAleatorio = Random().nextInt(contador);
+    int cont=0;
+    for(int i=0;i<palabras.length;i++){
+      if(palabras[i].length==numLetras){
+        cont++;
+      }
+      if(cont==contadorAleatorio){
+        palabraJuego=palabras[i];
+        break;
+      }
+    }
     palabra=palabraJuego;
   }
 
@@ -92,10 +149,10 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
       }
       setState(() {});
     }
-  }*/
+  }
 
 
-  bool cargandoConfiguracion=false;
+  bool cargandoConfiguracion=true;
   int letraActual = 0;
   int intentoActual = 0;
 
@@ -105,54 +162,20 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
   late AnimationController controladorAnimacion;
 
   @override
-  void initState()
-  {
+  void initState() {
     super.initState();
-    nLetras=5;
-    nIntentos=4;
-    palabra="POLLA";
-    /*
+
     Future.delayed(Duration.zero, () async {
       await leerConfig();
+
       leerConfig().whenComplete(() {
         setState(() {
           cargandoConfiguracion = false;
         });
-      });*/
+      });
 
-      /*if (idioma == 'espana') {
-        if (nLetras == 4) {
-          busquedaAleatoria('espana4');
-        } else {
-          if (nLetras == 5) {
-            busquedaAleatoria('espana5');
-          } else { //6 letras
-            busquedaAleatoria('espana6');
-          }
-        }
-      } else {
-        if (idioma == 'francia') {
-          if (nLetras == 4) {
-            busquedaAleatoria('francia4');
-          } else {
-            if (nLetras == 5) {
-              busquedaAleatoria('francia5');
-            } else { //6 letras
-              busquedaAleatoria('francia6');
-            }
-          }
-        } else { //italia
-          if (nLetras == 4) {
-            busquedaAleatoria('italia4');
-          } else {
-            if (nLetras == 5) {
-              busquedaAleatoria('italia5');
-            } else { //6 letras
-              busquedaAleatoria('italia6');
-            }
-          }
-        }
-      }*/
+      seleccionarIdioma();
+
       for (int i = 0; i < nIntentos; i++) {
         List<ContainerJuego> list = [];
         for (int j = 0; j < nLetras; j++) {
@@ -191,10 +214,9 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
         'N': ContainerLetra(letra: 'N'),
         'M': ContainerLetra(letra: 'M'),
       };
-
-
-
-    }
+      setState(() {}); // Llama a setState() aquí para actualizar la pantalla después de que se hayan leído los datos.
+    });
+  }
 
 
     @override
@@ -475,23 +497,42 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
                     context: context,
                     builder: (_) => AlertDialog(
                       title: Text(
-                          'VICTORIA',
-                          style:TextStyle(
-                            fontSize: MediaQuery.of(context).size.width * 0.09, // Tamaño de fuente
-                            fontWeight: FontWeight.bold, // Grosor de fuente
-                            fontStyle: FontStyle.italic, // Estilo de fuente
-                            color: Colors.yellowAccent, // Color del texto
-                            letterSpacing: 2.0, // Espaciado entre letras
-                            wordSpacing: 4.0, // Espaciado entre palabras
-                            shadows: [ // Sombra del texto
-                              Shadow(
-                                color: Colors.grey,
-                                offset: Offset(2.0, 2.0),
-                                blurRadius: 3.0,
+                        'VICTORIA',
+                        style:TextStyle(
+                          fontSize: MediaQuery.of(context).size.width * 0.09,
+                          fontWeight: FontWeight.bold,
+                          fontStyle: FontStyle.italic,
+                          color: Colors.yellowAccent,
+                          letterSpacing: 2.0,
+                          wordSpacing: 4.0,
+                          shadows: [
+                            Shadow(
+                              color: Colors.grey,
+                              offset: Offset(2.0, 2.0),
+                              blurRadius: 3.0,
+                            ),
+                          ],
+                        ),
+                      ),
+                      contentPadding: EdgeInsets.symmetric(vertical: 16.0),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Padding(
+                              padding: EdgeInsets.symmetric(horizontal:10),
+                              child:Text("aosdifiadshviodnvo0iadhvihjaoviner9ivh9ewrihvo9adhiv9iewhrv9ewr9vihewr9vjier9vijhewr9vihewr9vhi")
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 20),
+                            child: TextField(
+                              controller: _textController,
+                              decoration: InputDecoration(
+                                labelText: 'Introduce tu nombre',
                               ),
-                            ],
-                          )),
-                      content: Text('TIEMPO, ACIERTOS...'),
+                            ),
+                          ),
+                        ],
+                      ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.push(
@@ -504,6 +545,8 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
                       backgroundColor: Colors.green,
                     ),
                   );
+
+
                 } else {
                   setState(() {
                     intentoActual++;

@@ -23,7 +23,10 @@ class _PaginaIncio extends State<PaginaIncio>{
   int numeroIntentos=0;
   double va=0;
   int length=0;
-
+  int texto=0;
+  List<String> texto1=["NUMERO DE CARACTERES","NOMBRE DE CARACTÈRES","NUMERO DI CARATTERI"];
+  List<String> texto2=["NUMERO DE INTENTOS","NOMBRE DE TENTATIVES","NUMERO DI TENTATIVI"];
+  List<String> texto3=["EMPEZAR","COMMENCER","INIZIO"];
 
   Future<void> escribirConfig(String linea) async {
     final directory = await getApplicationDocumentsDirectory();
@@ -56,6 +59,17 @@ class _PaginaIncio extends State<PaginaIncio>{
           if (opciones[i].trim().isNotEmpty) {
             if (i == 0) {
               _idiomaSeleccionado = opciones[i];
+              switch(_idiomaSeleccionado){
+                case "espana":
+                  texto=0;
+                  break;
+                case "italia":
+                  texto=2;
+                  break;
+                case "francia":
+                  texto=1;
+                  break;
+              }
             }
             if (i == 1) {
               if (opciones[i] == "4") {
@@ -145,6 +159,17 @@ class _PaginaIncio extends State<PaginaIncio>{
               onSelected: (value) {
                 setState(() {
                   _idiomaSeleccionado = value;
+                  switch(_idiomaSeleccionado){
+                    case "espana":
+                      texto=0;
+                      break;
+                    case "italia":
+                      texto=2;
+                      break;
+                    case "francia":
+                      texto=1;
+                      break;
+                  }
                 });
               },
               itemBuilder: (BuildContext context) {
@@ -227,7 +252,7 @@ class _PaginaIncio extends State<PaginaIncio>{
                   ),
                   SizedBox(height: MediaQuery.of(context).size.width * 0.001), // Agrega espacio vertical,
                   Text(
-                      'NUMERO DE CARACTERES',
+                      texto1[texto],
                       style:
                       TextStyle(
                         fontSize: MediaQuery.of(context).size.width * 0.07, // Tamaño de fuente
@@ -377,7 +402,7 @@ class _PaginaIncio extends State<PaginaIncio>{
                   ),
                   SizedBox(height: MediaQuery.of(context).size.width * 0.001), // Agrega espacio vertical
                   Text(
-                      'NUMERO DE INTENTOS',
+                      texto2[texto],
                       style:
                       TextStyle(
                         fontSize: MediaQuery.of(context).size.width * 0.07, // Tamaño de fuente
@@ -621,16 +646,11 @@ class _PaginaIncio extends State<PaginaIncio>{
                                 MaterialPageRoute(builder: (context) => PaginaJuego())
                             );
 
-
-
-
-
-
                           },
                           child: Text(
-                              'START',
+                              texto3[texto],
                               style:TextStyle(
-                                fontSize: MediaQuery.of(context).size.width * 0.09, // Tamaño de fuente
+                                fontSize: MediaQuery.of(context).size.width * 0.0615, // Tamaño de fuente
                                 fontWeight: FontWeight.bold, // Grosor de fuente
                                 fontStyle: FontStyle.italic, // Estilo de fuente
                                 color: Colors.white70, // Color del texto
