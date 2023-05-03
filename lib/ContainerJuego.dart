@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 
-
-
 enum TipoBorde {
-  Activo(Colors.black, 4.0),
-  Inactivo(Colors.black, 1.0);
+  Activo(4.0),
+  Inactivo(1.0);
 
-  final Color colorBorde;
   final double anchoBorde;
 
-  const TipoBorde(this.colorBorde, this.anchoBorde);
+  const TipoBorde(this.anchoBorde);
 }
 
 enum TipoCampoJuego {
@@ -41,7 +38,7 @@ class ContainerJuego extends StatelessWidget {
             return Container(
               height: this._altoCasilla,
               decoration: BoxDecoration(
-                border: Border.all(color: tipoBorde.colorBorde, width: tipoBorde.anchoBorde),
+                border: Border.all(color: Colors.black, width: tipoBorde.anchoBorde),
                 color: this.tipo.colorFondo,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [

@@ -7,14 +7,14 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 enum TipoIdioma {
-  espanol("espanol", "assets/textos/espanol.txt", "assets/iconos/espana.png", ";",["NUMERO DE CARACTERES","NUMERO DE INTENTOS","EMPEZAR"]),
+  espanol("espanol", "assets/textos/espanol.json", "assets/iconos/espana.png", null,["NUMERO DE CARACTERES","NUMERO DE INTENTOS","EMPEZAR"]),
   frances("frances", "assets/textos/frances.txt", "assets/iconos/francia.png", ";",["NOMBRE DE CARACTÈRES","NOMBRE DE TENTATIVES","COMMENCER"]),
-  italiano("italiano", "assets/textos/italiano.txt", "assets/iconos/italia.png", ";",["NUMERO DI CARATTERI","NUMERO DI TENTATIVI","INIZIO"]);
+  italiano("italiano", "assets/textos/italiano.txt", "assets/iconos/italia.png", "\n",["NUMERO DI CARATTERI","NUMERO DI TENTATIVI","INIZIO"]);
 
   final String idioma;
   final String rutaIdioma;
   final String rutaBandera;
-  final String split;
+  final String? split;
   final List<String> texto;
 
   const TipoIdioma(this.idioma, this.rutaIdioma, this.rutaBandera, this.split,this.texto);
@@ -40,7 +40,7 @@ class PaginaIncio extends StatefulWidget {
 
 class _PaginaIncio extends State<PaginaIncio>{
 
-  TipoIdioma tipoIdioma = TipoIdioma.espanol; // Inicialmente se muestra el idioma Español
+  TipoIdioma tipoIdioma = TipoIdioma.espanol;
   int numeroCaracteres=0;
   int numeroIntentos=0;
   double va=0;
@@ -107,8 +107,7 @@ class _PaginaIncio extends State<PaginaIncio>{
   Widget build(BuildContext context) {
 
     return MaterialApp(
-      home: Scaffold(
-        body: Scaffold(
+        home: Scaffold(
           appBar: AppBar(
             toolbarHeight: MediaQuery.of(context).size.width * 0.1,
             backgroundColor: Color.fromRGBO(30, 30, 30, 1),
@@ -226,14 +225,7 @@ class _PaginaIncio extends State<PaginaIncio>{
                             fontStyle: FontStyle.italic, // Estilo de fuente
                             color: Colors.yellowAccent, // Color del texto
                             letterSpacing: 2.0, // Espaciado entre letras
-                            wordSpacing: 4.0, // Espaciado entre palabras
-                            shadows: [ // Sombra del texto
-                              Shadow(
-                                color: Colors.grey,
-                                offset: Offset(2.0, 2.0),
-                                blurRadius: 3.0,
-                              ),
-                            ],
+                            wordSpacing: 4.0, // Espaciado entre palabras// Sombra del texto
                           )
                       ),
                       SizedBox(height: MediaQuery.of(context).size.width * 0.03), // Agrega espacio vertical
@@ -247,7 +239,6 @@ class _PaginaIncio extends State<PaginaIncio>{
                             child: ElevatedButton(
 
                               onPressed: () {
-                                // Acción al presionar el botón 3
                                 setState(() {
                                   numeroCaracteres=4;
                                 });
@@ -256,19 +247,12 @@ class _PaginaIncio extends State<PaginaIncio>{
                                   '4',
                                   style:
                                   TextStyle(
-                                    fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
-                                    fontWeight: FontWeight.bold, // Grosor de fuente
-                                    fontStyle: FontStyle.italic, // Estilo de fuente
-                                    color: Colors.yellowAccent, // Color del texto
-                                    letterSpacing: 2.0, // Espaciado entre letras
-                                    wordSpacing: 4.0, // Espaciado entre palabras
-                                    shadows: [ // Sombra del texto
-                                      Shadow(
-                                        color: Colors.grey,
-                                        offset: Offset(2.0, 2.0),
-                                        blurRadius: 3.0,
-                                      ),
-                                    ],
+                                    fontSize: MediaQuery.of(context).size.width * 0.1,
+                                    fontWeight: FontWeight.bold,
+                                    fontStyle: FontStyle.italic,
+                                    color: Colors.black,
+                                    letterSpacing: 2.0,
+                                    wordSpacing: 4.0,
                                   )
                               ),
                               style: ButtonStyle(
@@ -288,7 +272,6 @@ class _PaginaIncio extends State<PaginaIncio>{
                             height: MediaQuery.of(context).size.width * 0.15, // Alto del botón
                             child: ElevatedButton(
                               onPressed: () {
-                                // Acción al presionar el botón 3
                                 setState(() {
                                   numeroCaracteres=5;
                                 });
@@ -300,16 +283,9 @@ class _PaginaIncio extends State<PaginaIncio>{
                                     fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
                                     fontWeight: FontWeight.bold, // Grosor de fuente
                                     fontStyle: FontStyle.italic, // Estilo de fuente
-                                    color: Colors.yellowAccent, // Color del texto
+                                    color: Colors.black, // Color del texto
                                     letterSpacing: 2.0, // Espaciado entre letras
                                     wordSpacing: 4.0, // Espaciado entre palabras
-                                    shadows: [ // Sombra del texto
-                                      Shadow(
-                                        color: Colors.grey,
-                                        offset: Offset(2.0, 2.0),
-                                        blurRadius: 3.0,
-                                      ),
-                                    ],
                                   )),
                               style: ButtonStyle(
                                   backgroundColor: MaterialStateProperty.resolveWith<Color>(
@@ -340,16 +316,9 @@ class _PaginaIncio extends State<PaginaIncio>{
                                     fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
                                     fontWeight: FontWeight.bold, // Grosor de fuente
                                     fontStyle: FontStyle.italic, // Estilo de fuente
-                                    color: Colors.yellowAccent, // Color del texto
+                                    color: Colors.black, // Color del texto
                                     letterSpacing: 2.0, // Espaciado entre letras
                                     wordSpacing: 4.0, // Espaciado entre palabras
-                                    shadows: [ // Sombra del texto
-                                      Shadow(
-                                        color: Colors.grey,
-                                        offset: Offset(2.0, 2.0),
-                                        blurRadius: 3.0,
-                                      ),
-                                    ],
                                   )
                               ),
                               style: ButtonStyle(
@@ -377,13 +346,6 @@ class _PaginaIncio extends State<PaginaIncio>{
                             color: Colors.yellowAccent, // Color del texto
                             letterSpacing: 2.0, // Espaciado entre letras
                             wordSpacing: 4.0, // Espaciado entre palabras
-                            shadows: [ // Sombra del texto
-                              Shadow(
-                                color: Colors.grey,
-                                offset: Offset(2.0, 2.0),
-                                blurRadius: 3.0,
-                              ),
-                            ],
                           )
                       ),
                       SizedBox(height: MediaQuery.of(context).size.width * 0.03), // Agrega espacio vertical
@@ -407,16 +369,9 @@ class _PaginaIncio extends State<PaginaIncio>{
                                     fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
                                     fontWeight: FontWeight.bold, // Grosor de fuente
                                     fontStyle: FontStyle.italic, // Estilo de fuente
-                                    color: Colors.yellowAccent, // Color del texto
+                                    color: Colors.black, // Color del texto
                                     letterSpacing: 2.0, // Espaciado entre letras
                                     wordSpacing: 4.0, // Espaciado entre palabras
-                                    shadows: [ // Sombra del texto
-                                      Shadow(
-                                        color: Colors.grey,
-                                        offset: Offset(2.0, 2.0),
-                                        blurRadius: 3.0,
-                                      ),
-                                    ],
                                   )),
                               style: ButtonStyle(
                                   backgroundColor: MaterialStateProperty.resolveWith<Color>(
@@ -447,16 +402,9 @@ class _PaginaIncio extends State<PaginaIncio>{
                                     fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
                                     fontWeight: FontWeight.bold, // Grosor de fuente
                                     fontStyle: FontStyle.italic, // Estilo de fuente
-                                    color: Colors.yellowAccent, // Color del texto
+                                    color: Colors.black, // Color del texto
                                     letterSpacing: 2.0, // Espaciado entre letras
                                     wordSpacing: 4.0, // Espaciado entre palabras
-                                    shadows: [ // Sombra del texto
-                                      Shadow(
-                                        color: Colors.grey,
-                                        offset: Offset(2.0, 2.0),
-                                        blurRadius: 3.0,
-                                      ),
-                                    ],
                                   )),
                               style: ButtonStyle(
                                   backgroundColor: MaterialStateProperty.resolveWith<Color>(
@@ -487,16 +435,9 @@ class _PaginaIncio extends State<PaginaIncio>{
                                     fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
                                     fontWeight: FontWeight.bold, // Grosor de fuente
                                     fontStyle: FontStyle.italic, // Estilo de fuente
-                                    color: Colors.yellowAccent, // Color del texto
+                                    color: Colors.black, // Color del texto
                                     letterSpacing: 2.0, // Espaciado entre letras
                                     wordSpacing: 4.0, // Espaciado entre palabras
-                                    shadows: [ // Sombra del texto
-                                      Shadow(
-                                        color: Colors.grey,
-                                        offset: Offset(2.0, 2.0),
-                                        blurRadius: 3.0,
-                                      ),
-                                    ],
                                   )),
                               style: ButtonStyle(
                                   backgroundColor: MaterialStateProperty.resolveWith<Color>(
@@ -527,16 +468,9 @@ class _PaginaIncio extends State<PaginaIncio>{
                                     fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
                                     fontWeight: FontWeight.bold, // Grosor de fuente
                                     fontStyle: FontStyle.italic, // Estilo de fuente
-                                    color: Colors.yellowAccent, // Color del texto
+                                    color: Colors.black, // Color del texto
                                     letterSpacing: 2.0, // Espaciado entre letras
                                     wordSpacing: 4.0, // Espaciado entre palabras
-                                    shadows: [ // Sombra del texto
-                                      Shadow(
-                                        color: Colors.grey,
-                                        offset: Offset(2.0, 2.0),
-                                        blurRadius: 3.0,
-                                      ),
-                                    ],
                                   )),
                               style: ButtonStyle(
                                   backgroundColor: MaterialStateProperty.resolveWith<Color>(
@@ -567,16 +501,9 @@ class _PaginaIncio extends State<PaginaIncio>{
                                     fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
                                     fontWeight: FontWeight.bold, // Grosor de fuente
                                     fontStyle: FontStyle.italic, // Estilo de fuente
-                                    color: Colors.yellowAccent, // Color del texto
+                                    color: Colors.black, // Color del texto
                                     letterSpacing: 2.0, // Espaciado entre letras
                                     wordSpacing: 4.0, // Espaciado entre palabras
-                                    shadows: [ // Sombra del texto
-                                      Shadow(
-                                        color: Colors.grey,
-                                        offset: Offset(2.0, 2.0),
-                                        blurRadius: 3.0,
-                                      ),
-                                    ],
                                   )
 
                               ),
@@ -618,22 +545,13 @@ class _PaginaIncio extends State<PaginaIncio>{
                                     fontSize: MediaQuery.of(context).size.width * 0.061, // Tamaño de fuente
                                     fontWeight: FontWeight.bold, // Grosor de fuente
                                     fontStyle: FontStyle.italic, // Estilo de fuente
-                                    color: Colors.white70, // Color del texto
+                                    color: Colors.black, // Color del texto
                                     letterSpacing: 2.0, // Espaciado entre letras
                                     wordSpacing: 4.0, // Espaciado entre palabras
-                                    shadows: [ // Sombra del texto
-                                      Shadow(
-                                        color: Colors.grey,
-                                        offset: Offset(2.0, 2.0),
-                                        blurRadius: 3.0,
-                                      ),
-                                    ],
                                   )),
                               style: ButtonStyle(
                                 backgroundColor: MaterialStateProperty.resolveWith<Color>(
                                       (Set<MaterialState> states) {
-                                    if (states.contains(MaterialState.pressed))
-                                      return Colors.purple; // Color cuando está presionado
                                     return Colors.deepOrange; // Color de fondo por defecto
                                   },
                                 ),
@@ -646,7 +564,6 @@ class _PaginaIncio extends State<PaginaIncio>{
                 )
             ),
           ),
-        ),
       ),
     );
   }

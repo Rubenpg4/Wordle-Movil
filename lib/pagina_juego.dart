@@ -1,8 +1,8 @@
 import 'dart:math';
 import 'dart:io';
+import 'dart:convert';
 import 'package:path_provider/path_provider.dart';
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_wordle/ContainerJuego.dart';
@@ -44,7 +44,9 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
   late int nLetras;
   late String palabra;
 
+  List<String> diccionario = [];
 
+  bool puedeEnviar = true;
 
   int letraActual = 0;
   int intentoActual = 0;
@@ -66,33 +68,24 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
     await file.writeAsString(linea);
   }
 
-  int contarPalabras(List<String> lista,int longitud){
-    int cont=0;
-    for(int i=0;i<lista.length;i++){
-      if(longitud==lista[i].length){
-        cont++;
-      }
-    }
-    return cont;
-  }
+  void busquedaAleatoria() async {
+    String data = await rootBundle.loadString(tipoIdioma.rutaIdioma);
 
-  void busquedaAleatoria(String nombre,int numLetras) async {
-    String palabraJuego='';
-    String data = await rootBundle.loadString('assets/textos/${nombre}.txt');
-    List<String> palabras = data.split(';');
-    int contador=contarPalabras(palabras,numLetras);
-    int contadorAleatorio = Random().nextInt(contador) + 1;
-    int cont=0;
-    for(int i=0;i<palabras.length;i++){
-      if(palabras[i].length==numLetras){
-        cont++;
-      }
-      if(cont==contadorAleatorio){
-        palabraJuego=palabras[i];
-        break;
-      }
+    if(tipoIdioma.split == null){
+      List<String> palabras = List<String>.from(json.decode(data));
+      diccionario = palabras
+          .where((palabra) => palabra.length == nLetras)
+          .map((palabra) => palabra.toUpperCase())
+          .toList();
+    } else {
+      diccionario = data.split(tipoIdioma.split!)
+          .where((palabra) => palabra.length == nLetras + 1)
+          .map((palabra) => palabra.toUpperCase())
+          .toList();
     }
-    palabra=palabraJuego;
+
+    int numAleatorio = Random().nextInt(diccionario.length);
+    palabra = diccionario[numAleatorio];
   }
 
   Future<void> leerConfig() async {
@@ -117,42 +110,6 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
     }
   }
 
-  void seleccionarIdioma(){
-    if (tipoIdioma.idioma == 'espanol') {
-      if (nLetras == 4) {
-        busquedaAleatoria('espanol',4);
-      } else {
-        if (nLetras == 5) {
-          busquedaAleatoria('espanol',5);
-        } else { //6 letras
-          busquedaAleatoria('espanol',6);
-        }
-      }
-    } else {
-      if (tipoIdioma.idioma == 'frances') {
-        if (nLetras == 4) {
-          busquedaAleatoria('frances',4);
-        } else {
-          if (nLetras == 5) {
-            busquedaAleatoria('frances',5);
-          } else { //6 letras
-            busquedaAleatoria('frances',6);
-          }
-        }
-      } else { //italia
-        if (nLetras == 4) {
-          busquedaAleatoria('italiano',4);
-        } else {
-          if (nLetras == 5) {
-            busquedaAleatoria('italiano',5);
-          } else { //6 letras
-            busquedaAleatoria('italiano',6);
-          }
-        }
-      }
-    }
-  }
-
   final TextEditingController _textController = TextEditingController();
 
   @override
@@ -166,7 +123,7 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
         });
       });
 
-      seleccionarIdioma();
+      busquedaAleatoria();
 
       for (int i = 0; i < nIntentos; i++) {
         List<ContainerJuego> list = [];
@@ -219,6 +176,7 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
+        resizeToAvoidBottomInset: false,
         body: Container(
           color: Color.fromRGBO(30, 30, 30, 1),
           child: cargandoConfiguracion ? Center(
@@ -506,9 +464,15 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
       child: ElevatedButton(
         onPressed: () async {
           if(this.intentoActual < this.nIntentos) {
-            if (this.letraActual >= nLetras) {
-              for (int i = 0; i < this.nLetras; i++) {
-                await Future.delayed(const Duration(milliseconds: 250), () {});
+            if (this.letraActual >= nLetras && puedeEnviar) {
+              puedeEnviar = false;
+              String palabraString = '';
+              for (int i = 0; i < this.nLetras; i++)
+                palabraString += tableroJuego[intentoActual][i].letra;
+              if (diccionario.contains(palabraString)) {
+                for (int i = 0; i < this.nLetras; i++) {
+                  await Future.delayed(
+                      const Duration(milliseconds: 250), () {});
                   setState(() {
                     if (tableroJuego[intentoActual][i].letra ==
                         palabra[i]) {
@@ -516,8 +480,8 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
                           TipoCampoJuego.Acertado;
                       mapaTeclado[tableroJuego[intentoActual][i].letra]
                           ?.tipo = TipoCampoLetra.Acertado;
-                    } else
-                    if (palabra.contains(tableroJuego[intentoActual][i].letra)) {
+                    } else if (palabra.contains(
+                        tableroJuego[intentoActual][i].letra)) {
                       tableroJuego[intentoActual][i].tipo =
                           TipoCampoJuego.Desubicado;
                       if (mapaTeclado[tableroJuego[intentoActual][i].letra]
@@ -535,138 +499,160 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
                             ?.tipo = TipoCampoLetra.Fallado;
                     }
                   });
-              }
-
-              bool gana = true;
-              for (int i = 0; i < this.nLetras; i++) {
-                if (tableroJuego[intentoActual][i].letra != palabra[i])
-                  gana = false;
-              }
-
-              if (gana) {
-                fin = DateTime.now();
-                duracion = fin.difference(inicio);
-                if(bombasUsadas == 0 && lupasUsadas == 0){
-                  puntuacion = nLetras/nIntentos * 1000 - duracion.inSeconds;
-                }else {
-                  if(bombasUsadas == 0)
-                    puntuacion = nLetras/nIntentos * 1000 - (duracion.inSeconds * (lupasUsadas * 2.2));
-                  else if(lupasUsadas == 0)
-                    puntuacion = nLetras/nIntentos * 1000 - (duracion.inSeconds * (bombasUsadas));
                 }
-                showDialog(
-                  context: context,
-                  builder: (_) => AlertDialog(
-                    title: Text(
-                      'VICTORIA',
-                      style:TextStyle(
-                        fontSize: MediaQuery.of(context).size.width * 0.09,
-                        fontWeight: FontWeight.bold,
-                        fontStyle: FontStyle.italic,
-                        color: Colors.yellowAccent,
-                        letterSpacing: 2.0,
-                        wordSpacing: 4.0,
-                        shadows: [
-                          Shadow(
-                            color: Colors.grey,
-                            offset: Offset(2.0, 2.0),
-                            blurRadius: 3.0,
-                          ),
-                        ],
-                      ),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(vertical: 16.0),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Padding(
-                            padding: EdgeInsets.symmetric(horizontal:10),
-                            child:Text('Puntuacion:${puntuacion}\nTiempo:${duracion}')
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          child: TextField(
-                            controller: _textController,
-                            decoration: InputDecoration(
-                              labelText: 'Introduce tu nombre',
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          escribirRanking("${_textController.value.text};${puntuacion};${duracion};\n");
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => PaginaIncio()),
-                          );
-                        },
-                        child: Text('Volver'),
-                      )
-                    ],
-                    backgroundColor: Colors.green,
-                  ),
-                );
-              } else {
-                fin = DateTime.now();
-                duracion = fin.difference(inicio);
+                puedeEnviar = true;
 
-                if(bombasUsadas == 0 && lupasUsadas == 0){
-                  puntuacion = nLetras/nIntentos * 1000 - duracion.inSeconds;
-                }else {
-                  if(bombasUsadas == 0)
-                    puntuacion = nLetras/nIntentos * 1000 - (duracion.inSeconds * (lupasUsadas * 2.2));
-                  else if(lupasUsadas == 0)
-                    puntuacion = nLetras/nIntentos * 1000 - (duracion.inSeconds * (bombasUsadas));
+                bool gana = true;
+                for (int i = 0; i < this.nLetras; i++) {
+                  if (tableroJuego[intentoActual][i].letra != palabra[i])
+                    gana = false;
                 }
 
-                setState(() {
-                  intentoActual++;
-                  letraActual = 0;
-                  if (intentoActual < nIntentos)
-                    tableroJuego[intentoActual][0].tipoBorde = TipoBorde.Activo;
-                });
-
-                if (intentoActual >= nIntentos) {
+                if (gana) {
+                  fin = DateTime.now();
+                  duracion = fin.difference(inicio);
+                  if (bombasUsadas == 0 && lupasUsadas == 0) {
+                    puntuacion =
+                        nLetras / nIntentos * 1000 - duracion.inSeconds;
+                  } else {
+                    if (bombasUsadas == 0)
+                      puntuacion = nLetras / nIntentos * 1000 -
+                          (duracion.inSeconds * (lupasUsadas * 2.2));
+                    else if (lupasUsadas == 0)
+                      puntuacion = nLetras / nIntentos * 1000 -
+                          (duracion.inSeconds * (bombasUsadas));
+                  }
                   showDialog(
                     context: context,
-                    builder: (_) => AlertDialog(
-                      title: Text(
-                        'DERROTA',
-                        style:TextStyle(
-                          fontSize: MediaQuery.of(context).size.width * 0.09, // Tamaño de fuente
-                          fontWeight: FontWeight.bold, // Grosor de fuente
-                          fontStyle: FontStyle.italic, // Estilo de fuente
-                          color: Colors.yellowAccent, // Color del texto
-                          letterSpacing: 2.0, // Espaciado entre letras
-                          wordSpacing: 4.0, // Espaciado entre palabras
-                          shadows: [ // Sombra del texto
-                            Shadow(
-                              color: Colors.grey,
-                              offset: Offset(2.0, 2.0),
-                              blurRadius: 3.0,
+                    builder: (_) =>
+                        AlertDialog(
+                          title: Text(
+                            textAlign: TextAlign.center,
+                            'VICTORIA',
+                            style: TextStyle(
+                              fontSize: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width * 0.09,
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic,
+                              color: Colors.yellowAccent,
+                              letterSpacing: 2.0,
+                              wordSpacing: 4.0,
                             ),
-                          ],
-                        )
-                      ),
-                      content: Text('Puntuacion:${puntuacion}\nTiempo:${duracion}'),
-                      actions: [
-                        TextButton(
-                            onPressed: () {
+                          ),
+                          contentPadding: EdgeInsets.symmetric(vertical: 16.0),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  child: Text(
+                                      'Puntuacion:${puntuacion}\nTiempo:${duracion}')
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 20),
+                                child: TextField(
+                                  controller: _textController,
+                                  decoration: InputDecoration(
+                                    labelText: 'Introduce tu nombre',
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                escribirRanking("${_textController.value
+                                    .text};${puntuacion};${duracion};\n");
                                 Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => PaginaIncio()),
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => PaginaIncio()),
                                 );
-                            },
-                            child: Text('Volver')
-
-                        )
-                      ],
-                      backgroundColor: Colors.red,
-                    ),
+                              },
+                              child: Text(
+                                'Volver',
+                                style: TextStyle(
+                                    color: Colors.yellowAccent,
+                                ),
+                              ),
+                            )
+                          ],
+                          backgroundColor: Colors.green,
+                        ),
                   );
+                } else {
+                  fin = DateTime.now();
+                  duracion = fin.difference(inicio);
+
+                  if (bombasUsadas == 0 && lupasUsadas == 0) {
+                    puntuacion =
+                        nLetras / nIntentos * 1000 - duracion.inSeconds;
+                  } else {
+                    if (bombasUsadas == 0)
+                      puntuacion = nLetras / nIntentos * 1000 -
+                          (duracion.inSeconds * (lupasUsadas * 2.2));
+                    else if (lupasUsadas == 0)
+                      puntuacion = nLetras / nIntentos * 1000 -
+                          (duracion.inSeconds * (bombasUsadas));
+                  }
+
+                  setState(() {
+                    intentoActual++;
+                    letraActual = 0;
+                    if (intentoActual < nIntentos)
+                      tableroJuego[intentoActual][0].tipoBorde =
+                          TipoBorde.Activo;
+                  });
+
+                  if (intentoActual >= nIntentos) {
+                    showDialog(
+                      context: context,
+                      builder: (_) =>
+                          AlertDialog(
+                            title: Text(
+                                'DERROTA',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: MediaQuery
+                                      .of(context)
+                                      .size
+                                      .width * 0.09,
+                                  fontWeight: FontWeight.bold,
+                                  fontStyle: FontStyle.italic,
+                                  color: Colors.yellowAccent,
+                                  letterSpacing: 2.0,
+                                  wordSpacing: 4.0,
+                                )
+                            ),
+                            content: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              child: Text('La palabra magica era ${palabra}'),
+                            ),
+                            actions: [
+                              TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => PaginaIncio()),
+                                    );
+                                  },
+                                  child: Text(
+                                      'Volver',
+                                      style: TextStyle(
+                                        color: Colors.yellowAccent
+                                      ),
+                                  )
+
+                              )
+                            ],
+                            backgroundColor: Colors.red,
+                          ),
+                    );
+                  }
                 }
               }
             }
