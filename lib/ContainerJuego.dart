@@ -1,16 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum TipoCampoJuego {
-  Defecto(Colors.white, Colors.black),
-  Acertado(Colors.green, Colors.black),
-  Fallado(Colors.black, Colors.white),
-  Desubicado(Colors.yellow, Colors.black);
 
-  final Color colorFondo;
-  final Color colorLetra;
-
-  const TipoCampoJuego(this.colorFondo, this.colorLetra);
-}
 
 enum TipoBorde {
   Activo(Colors.black, 4.0),
@@ -22,6 +12,17 @@ enum TipoBorde {
   const TipoBorde(this.colorBorde, this.anchoBorde);
 }
 
+enum TipoCampoJuego {
+  Defecto(Colors.white, Colors.black),
+  Acertado(Colors.green, Colors.black),
+  Fallado(Colors.black, Colors.white),
+  Desubicado(Colors.yellow, Colors.black);
+
+  final Color colorFondo;
+  final Color colorLetra;
+
+  const TipoCampoJuego(this.colorFondo, this.colorLetra);
+}
 class ContainerJuego extends StatelessWidget {
   TipoBorde tipoBorde = TipoBorde.Inactivo;
   double _altoCasilla = 0.0;

@@ -2,8 +2,38 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:async';
 
-class Ranking extends StatelessWidget {
+import 'package:path_provider/path_provider.dart';
+
+
+class Ranking extends StatefulWidget {
   const Ranking({Key? key}) : super(key: key);
+
+  @override
+  _RankingState createState() => _RankingState();
+}
+
+
+
+class _RankingState extends State<Ranking> {
+  List<String> jugadores = [];
+
+  Future<void> leerRanking() async {
+    final ruta = await getApplicationDocumentsDirectory();
+    File file = File('${ruta.path}/Ranking.txt');
+
+    if (await file.exists()) {
+      print("jejej");
+      String contenido = await file.readAsString();
+      jugadores = contenido.split('\n');
+      print(jugadores);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    leerRanking();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,45 +51,37 @@ class Ranking extends StatelessWidget {
                     'RANKING',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        fontSize: MediaQuery.of(context).size.width * 0.1,
+                        fontSize: MediaQuery
+                            .of(context)
+                            .size
+                            .width * 0.1,
                         fontWeight: FontWeight.bold,
                         color: Colors.red),
                   ),
                 ),
                 Expanded(
-                  child: FutureBuilder(
-                    future: _readPlayersFile(),
-                    builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        return ListView.builder(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: MediaQuery.of(context).size.width * 0.1),
-                          itemCount: snapshot.data?.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return Padding(
-                              padding: EdgeInsets.only(top: 10),
-                              child: Text(
-                                '${index + 1}. ${snapshot.data?[index]}',
-                                style: TextStyle(
-                                  fontSize: MediaQuery.of(context).size.width * 0.05,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      } else {
-                        return CircularProgressIndicator();
-                      }
+                  child: ListView.builder(
+                    itemCount: jugadores.length,
+                    itemBuilder: (context, index) {
+                      return Text(jugadores[index]);
                     },
                   ),
                 ),
                 Padding(
                   padding: EdgeInsets.fromLTRB(
-                    MediaQuery.of(context).size.width * 0.1,
+                    MediaQuery
+                        .of(context)
+                        .size
+                        .width * 0.1,
                     0,
-                    MediaQuery.of(context).size.width * 0.1,
-                    MediaQuery.of(context).size.height * 0.04,
+                    MediaQuery
+                        .of(context)
+                        .size
+                        .width * 0.1,
+                    MediaQuery
+                        .of(context)
+                        .size
+                        .height * 0.04,
                   ),
                   child: ElevatedButton(
                     onPressed: () {
@@ -68,18 +90,30 @@ class Ranking extends StatelessWidget {
                     child: Text(
                       'Volver',
                       style: TextStyle(
-                        fontSize: MediaQuery.of(context).size.width * 0.05,
+                        fontSize: MediaQuery
+                            .of(context)
+                            .size
+                            .width * 0.05,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(
-                        vertical: MediaQuery.of(context).size.height * 0.02,
+                        vertical: MediaQuery
+                            .of(context)
+                            .size
+                            .height * 0.02,
                       ),
                       textStyle: TextStyle(fontSize: 20),
                       minimumSize: Size(
-                        MediaQuery.of(context).size.width * 0.8,
-                        MediaQuery.of(context).size.height * 0.08,
+                        MediaQuery
+                            .of(context)
+                            .size
+                            .width * 0.8,
+                        MediaQuery
+                            .of(context)
+                            .size
+                            .height * 0.08,
                       ),
                       backgroundColor: Colors.purple,
                     ),
@@ -92,14 +126,4 @@ class Ranking extends StatelessWidget {
       ),
     );
   }
-
-  Future<List<String>> _readPlayersFile() async {
-    final file = File('path/to/your/players_file.txt');
-    List<String> players = [];
-    if (await file.exists()) {
-      players = await file.readAsLines();
-    }
-    return players;
-  }
-
 }

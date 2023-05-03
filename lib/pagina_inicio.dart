@@ -7,25 +7,26 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 enum TipoIdioma {
-  espanol("espanol", "assets/textos/espanol.json", "assets/iconos/espana.png", ", "),
-  frances("frances", "assets/textos/frances.txt", "assets/iconos/francia.png", ";"),
-  italiano("italiano", "assets/textos/italiano.txt", "assets/iconos/italia.png", ";");
+  espanol("espanol", "assets/textos/espanol.txt", "assets/iconos/espana.png", ";",["NUMERO DE CARACTERES","NUMERO DE INTENTOS","EMPEZAR"]),
+  frances("frances", "assets/textos/frances.txt", "assets/iconos/francia.png", ";",["NOMBRE DE CARACTÈRES","NOMBRE DE TENTATIVES","COMMENCER"]),
+  italiano("italiano", "assets/textos/italiano.txt", "assets/iconos/italia.png", ";",["NUMERO DI CARATTERI","NUMERO DI TENTATIVI","INIZIO"]);
 
   final String idioma;
   final String rutaIdioma;
   final String rutaBandera;
   final String split;
+  final List<String> texto;
 
-  const TipoIdioma(this.idioma, this.rutaIdioma, this.rutaBandera, this.split);
+  const TipoIdioma(this.idioma, this.rutaIdioma, this.rutaBandera, this.split,this.texto);
 
   static TipoIdioma buscarIdioma(String Myidioma) {
     List<TipoIdioma> miLista = TipoIdioma.values;
+    TipoIdioma idioma=TipoIdioma.espanol;
     for(int i = 0; i < miLista.length; i++) {
       if(miLista[i].idioma == Myidioma)
-        return miLista[i];
+        idioma=miLista[i];
     }
-
-    return TipoIdioma.espanol;
+    return idioma;
   }
 }
 
@@ -52,6 +53,14 @@ class _PaginaIncio extends State<PaginaIncio>{
     await file.writeAsString(linea);
   }
 
+  Future<void> copyRankingFile() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final configFile = File('${directory.path}/Ranking.txt');
+
+    if (!await configFile.exists()) {
+      await configFile.writeAsString('');
+    }
+  }
 
   Future<void> copyConfigFile() async {
     final directory = await getApplicationDocumentsDirectory();
@@ -87,6 +96,7 @@ class _PaginaIncio extends State<PaginaIncio>{
   @override
   void initState() {
     ()async {
+      await copyRankingFile();
       await copyConfigFile();
       await leerConfig();
     }();
@@ -208,7 +218,7 @@ class _PaginaIncio extends State<PaginaIncio>{
                       ),
                       SizedBox(height: MediaQuery.of(context).size.width * 0.001), // Agrega espacio vertical,
                       Text(
-                          'NUMERO DE CARACTERES',
+                          tipoIdioma.texto[0],
                           style:
                           TextStyle(
                             fontSize: MediaQuery.of(context).size.width * 0.07, // Tamaño de fuente
@@ -358,7 +368,7 @@ class _PaginaIncio extends State<PaginaIncio>{
                       ),
                       SizedBox(height: MediaQuery.of(context).size.width * 0.001), // Agrega espacio vertical
                       Text(
-                          'NUMERO DE INTENTOS',
+                          tipoIdioma.texto[1],
                           style:
                           TextStyle(
                             fontSize: MediaQuery.of(context).size.width * 0.07, // Tamaño de fuente
@@ -603,9 +613,9 @@ class _PaginaIncio extends State<PaginaIncio>{
                                 );
                               },
                               child: Text(
-                                  'START',
+                                  tipoIdioma.texto[2],
                                   style:TextStyle(
-                                    fontSize: MediaQuery.of(context).size.width * 0.09, // Tamaño de fuente
+                                    fontSize: MediaQuery.of(context).size.width * 0.061, // Tamaño de fuente
                                     fontWeight: FontWeight.bold, // Grosor de fuente
                                     fontStyle: FontStyle.italic, // Estilo de fuente
                                     color: Colors.white70, // Color del texto

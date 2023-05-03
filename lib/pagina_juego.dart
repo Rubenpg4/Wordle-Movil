@@ -44,7 +44,7 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
   late int nLetras;
   late String palabra;
 
-  late List<String> palabrasFiltradas = [];
+
 
   int letraActual = 0;
   int intentoActual = 0;
@@ -60,56 +60,113 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
   late AnimationController controladorAnimacion;
   bool cargandoConfiguracion = true;
 
+  Future<void> escribirRanking(String linea) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final file = File('${directory.path}/Ranking.txt');
+    await file.writeAsString(linea);
+  }
+
+  int contarPalabras(List<String> lista,int longitud){
+    int cont=0;
+    for(int i=0;i<lista.length;i++){
+      if(longitud==lista[i].length){
+        cont++;
+      }
+    }
+    return cont;
+  }
+
+  void busquedaAleatoria(String nombre,int numLetras) async {
+    String palabraJuego='';
+    String data = await rootBundle.loadString('assets/textos/${nombre}.txt');
+    List<String> palabras = data.split(';');
+    int contador=contarPalabras(palabras,numLetras);
+    int contadorAleatorio = Random().nextInt(contador) + 1;
+    int cont=0;
+    for(int i=0;i<palabras.length;i++){
+      if(palabras[i].length==numLetras){
+        cont++;
+      }
+      if(cont==contadorAleatorio){
+        palabraJuego=palabras[i];
+        break;
+      }
+    }
+    palabra=palabraJuego;
+  }
+
+  Future<void> leerConfig() async {
+    final ruta = await getApplicationDocumentsDirectory();
+    File file = File('${ruta.path}/config.txt');
+
+    if (await file.exists()) {
+      String contenido = await file.readAsString();
+      List<String> opciones = contenido.split(';');
+
+      setState(() {
+        for (int i = 0; i < 3; i++) {
+          if (opciones[i].trim().isNotEmpty) {
+            if (i == 0) tipoIdioma = TipoIdioma.buscarIdioma(opciones[i]);
+
+            if (i == 1) nLetras = int.parse(opciones[i]);
+
+            if (i == 2) nIntentos = int.parse(opciones[i]);
+          }
+        }
+      });
+    }
+  }
+
+  void seleccionarIdioma(){
+    if (tipoIdioma.idioma == 'espanol') {
+      if (nLetras == 4) {
+        busquedaAleatoria('espanol',4);
+      } else {
+        if (nLetras == 5) {
+          busquedaAleatoria('espanol',5);
+        } else { //6 letras
+          busquedaAleatoria('espanol',6);
+        }
+      }
+    } else {
+      if (tipoIdioma.idioma == 'frances') {
+        if (nLetras == 4) {
+          busquedaAleatoria('frances',4);
+        } else {
+          if (nLetras == 5) {
+            busquedaAleatoria('frances',5);
+          } else { //6 letras
+            busquedaAleatoria('frances',6);
+          }
+        }
+      } else { //italia
+        if (nLetras == 4) {
+          busquedaAleatoria('italiano',4);
+        } else {
+          if (nLetras == 5) {
+            busquedaAleatoria('italiano',5);
+          } else { //6 letras
+            busquedaAleatoria('italiano',6);
+          }
+        }
+      }
+    }
+  }
+
+  final TextEditingController _textController = TextEditingController();
+
   @override
   void initState() {
     Future.delayed(Duration.zero, () async {
       await leerConfig();
-      palabrasFiltradas = await filtrarPalabras();
 
       leerConfig().whenComplete(() {
-        filtrarPalabras().whenComplete(() {
-          setState(() {
-            cargandoConfiguracion = false;
-          });
+        setState(() {
+          cargandoConfiguracion = false;
         });
       });
-      /*if (idioma == 'espana') {
-        if (nLetras == 4) {
-          busquedaAleatoria('espana4');
-        } else {
-          if (nLetras == 5) {
-            busquedaAleatoria('espana5');
-          } else { //6 letras
-            busquedaAleatoria('espana6');
-          }
-        }
-      } else {
-        if (idioma == 'francia') {
-          if (nLetras == 4) {
-            busquedaAleatoria('francia4');
-          } else {
-            if (nLetras == 5) {
-              busquedaAleatoria('francia5');
-            } else { //6 letras
-              busquedaAleatoria('francia6');
-            }
-          }
-        } else { //italia
-          if (nLetras == 4) {
-            busquedaAleatoria('italia4');
-          } else {
-            if (nLetras == 5) {
-              busquedaAleatoria('italia5');
-            } else { //6 letras
-              busquedaAleatoria('italia6');
-            }
-          }
-        }
-      }*/
 
-
-
-      palabra = "AVION";
+      seleccionarIdioma();
 
       for (int i = 0; i < nIntentos; i++) {
         List<ContainerJuego> list = [];
@@ -489,9 +546,9 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
               if (gana) {
                 fin = DateTime.now();
                 duracion = fin.difference(inicio);
-                if(bombasUsadas == 0 && lupasUsadas == 0)
+                if(bombasUsadas == 0 && lupasUsadas == 0){
                   puntuacion = nLetras/nIntentos * 1000 - duracion.inSeconds;
-                else {
+                }else {
                   if(bombasUsadas == 0)
                     puntuacion = nLetras/nIntentos * 1000 - (duracion.inSeconds * (lupasUsadas * 2.2));
                   else if(lupasUsadas == 0)
@@ -503,32 +560,68 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
                     title: Text(
                       'VICTORIA',
                       style:TextStyle(
-                        fontSize: MediaQuery.of(context).size.width * 0.09, // Tamaño de fuente
-                        fontWeight: FontWeight.bold, // Grosor de fuente
-                        fontStyle: FontStyle.italic, // Estilo de fuente
-                        color: Colors.yellowAccent, // Color del texto
-                        letterSpacing: 2.0, // Espaciado entre letras
-                        wordSpacing: 4.0, // Espaciado entre palabras
-                        shadows: [ // Sombra del texto
+                        fontSize: MediaQuery.of(context).size.width * 0.09,
+                        fontWeight: FontWeight.bold,
+                        fontStyle: FontStyle.italic,
+                        color: Colors.yellowAccent,
+                        letterSpacing: 2.0,
+                        wordSpacing: 4.0,
+                        shadows: [
                           Shadow(
                             color: Colors.grey,
                             offset: Offset(2.0, 2.0),
                             blurRadius: 3.0,
                           ),
                         ],
-                      )),
-                      content: Text('TIEMPO, ACIERTOS...'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text('Volver'),
-
-                        )
+                      ),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(vertical: 16.0),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                            padding: EdgeInsets.symmetric(horizontal:10),
+                            child:Text('Puntuacion:${puntuacion}\nTiempo:${duracion}')
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          child: TextField(
+                            controller: _textController,
+                            decoration: InputDecoration(
+                              labelText: 'Introduce tu nombre',
+                            ),
+                          ),
+                        ),
                       ],
-                      backgroundColor: Colors.green,
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          escribirRanking("${_textController.value.text};${puntuacion};${duracion};\n");
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => PaginaIncio()),
+                          );
+                        },
+                        child: Text('Volver'),
+                      )
+                    ],
+                    backgroundColor: Colors.green,
                   ),
                 );
               } else {
+                fin = DateTime.now();
+                duracion = fin.difference(inicio);
+
+                if(bombasUsadas == 0 && lupasUsadas == 0){
+                  puntuacion = nLetras/nIntentos * 1000 - duracion.inSeconds;
+                }else {
+                  if(bombasUsadas == 0)
+                    puntuacion = nLetras/nIntentos * 1000 - (duracion.inSeconds * (lupasUsadas * 2.2));
+                  else if(lupasUsadas == 0)
+                    puntuacion = nLetras/nIntentos * 1000 - (duracion.inSeconds * (bombasUsadas));
+                }
+
                 setState(() {
                   intentoActual++;
                   letraActual = 0;
@@ -558,10 +651,15 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
                           ],
                         )
                       ),
-                      content: Text('TIEMPO, ACIERTOS..'),
+                      content: Text('Puntuacion:${puntuacion}\nTiempo:${duracion}'),
                       actions: [
                         TextButton(
-                            onPressed: () => Navigator.pop(context),
+                            onPressed: () {
+                                Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => PaginaIncio()),
+                                );
+                            },
                             child: Text('Volver')
 
                         )
@@ -702,26 +800,6 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
     );
   }
 
-  Future<void> leerConfig() async {
-    final ruta = await getApplicationDocumentsDirectory();
-    File file = File('${ruta.path}/config.txt');
 
-    if (await file.exists()) {
-      String contenido = await file.readAsString();
-      List<String> opciones = contenido.split(';');
-
-      setState(() {
-        for (int i = 0; i < 3; i++) {
-          if (opciones[i].trim().isNotEmpty) {
-            if (i == 0) tipoIdioma = TipoIdioma.buscarIdioma(opciones[i]);
-
-            if (i == 1) nLetras = int.parse(opciones[i]);
-
-            if (i == 2) nIntentos = int.parse(opciones[i]);
-          }
-        }
-      });
-    }
-  }
 
 }
