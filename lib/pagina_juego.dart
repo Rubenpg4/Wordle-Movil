@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_wordle/container_juego.dart';
 import 'package:flutter_wordle/container_letra.dart';
 import 'package:flutter_wordle/pagina_inicio.dart';
+import 'package:confetti/confetti.dart';
 
 enum tipoPista {
   bomba("assets/iconos/bomba.png"),
@@ -62,6 +63,7 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
   int bombasUsadas = 0, lupasUsadas = 0;
 
   late AnimationController controladorAnimacion;
+  late ConfettiController _confettiController;
   bool cargandoConfiguracion = true;
 
   Future<void> escribirRanking(String nombre) async {
@@ -213,11 +215,17 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
       };
 
       inicio = DateTime.now();
-
       textosIdioma = widget.textosIdioma;
     });
 
     super.initState();
+    _confettiController = ConfettiController(duration: Duration(seconds: 3));
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
   }
 
   @override
@@ -507,9 +515,16 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
 
   Widget _BotonEnviar() {
     return Container(
-      width: 150,
-      height: 40,
-      child: ElevatedButton(
+      width: 200,
+      height: 60,
+      child: Stack(
+       children: [
+         Align(
+           alignment: Alignment.center,
+        child: SizedBox(
+          width: 160,
+          height: 60,
+        child: ElevatedButton(
         onPressed: () async {
           if(this.intentoActual < this.nIntentos) {
             if (this.letraActual >= nLetras && puedeEnviar) {
@@ -557,6 +572,7 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
                 }
 
                 if (gana) {
+                  _confettiController.play();
                   fin = DateTime.now();
                   duracion = fin.difference(inicio);
                   if (bombasUsadas == 0 && lupasUsadas == 0) {
@@ -717,14 +733,37 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
           primary: Colors.green,
           onPrimary: Colors.white,
           textStyle: TextStyle(
-            fontSize: 20,
+            fontSize: 28,
             fontWeight: FontWeight.bold,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10), // Bordes redondeados del botón
+            borderRadius: BorderRadius.circular(7.5), // Bordes redondeados del botón
           ),
         ),
+        ),
+        ),
       ),
+       Align(
+         alignment: Alignment.topCenter,
+         child: ConfettiWidget(
+           confettiController: _confettiController,
+           blastDirectionality: BlastDirectionality.explosive,
+           shouldLoop: false,
+           emissionFrequency: 0.065,
+           numberOfParticles: 40,
+           maxBlastForce: 200,
+           minBlastForce: 100,
+           colors: [
+             Colors.green,
+             Colors.blue,
+             Colors.pink,
+             Colors.orange,
+             Colors.purple
+           ],
+         ),
+       ),
+    ],
+    ),
     );
   }
 
