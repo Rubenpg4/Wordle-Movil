@@ -1,0 +1,1 @@
+NUMERO DE CARACTERES,NUMERO DE INTENTOS,INICIAR,VICTORIA,DERROTA,ENVIAR,Puntuacion,Tiempo,Volver,Introduce tu nombre,La palabra magica era,

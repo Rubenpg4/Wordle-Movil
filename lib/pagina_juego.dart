@@ -5,8 +5,8 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_wordle/ContainerJuego.dart';
-import 'package:flutter_wordle/ContainerLetra.dart';
+import 'package:flutter_wordle/container_juego.dart';
+import 'package:flutter_wordle/container_letra.dart';
 import 'package:flutter_wordle/pagina_inicio.dart';
 
 enum tipoPista {
@@ -19,7 +19,8 @@ enum tipoPista {
 }
 
 class PaginaJuego extends StatefulWidget {
-  const PaginaJuego({Key? key}) : super(key: key);
+  final List<String> textosIdioma;
+  const PaginaJuego({Key? key, required this.textosIdioma}) : super(key: key);
 
   @override
   State<PaginaJuego> createState() => _PaginaJuego();
@@ -45,6 +46,7 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
   late String palabra;
 
   List<String> diccionario = [];
+  List<String> textosIdioma = [];
 
   bool puedeEnviar = true;
 
@@ -62,30 +64,75 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
   late AnimationController controladorAnimacion;
   bool cargandoConfiguracion = true;
 
-  Future<void> escribirRanking(String linea) async {
+  Future<void> escribirRanking(String nombre) async {
     final directory = await getApplicationDocumentsDirectory();
     final file = File('${directory.path}/Ranking.txt');
-    await file.writeAsString(linea);
+
+    List<String> lineas = await file.readAsLines();
+
+    double puntuacionMinima = (lineas.length >= 10) ? double.parse(lineas[9].split(';')[1]) : 0;
+
+    if (lineas.length < 10 || puntuacion > puntuacionMinima) {
+      lineas.add('$nombre;${double.parse(puntuacion.toStringAsFixed(2))}');
+
+      lineas.sort((a, b) {
+        double puntuacionA, puntuacionB;
+        try {
+          puntuacionA = double.parse(a.split(';')[1]);
+        } catch (e) {
+          puntuacionA = 0;
+        }
+        try {
+          puntuacionB = double.parse(b.split(';')[1]);
+        } catch (e) {
+          puntuacionB = 0;
+        }
+        return puntuacionB.compareTo(puntuacionA);
+      });
+
+      if (lineas.length > 10) {
+        lineas.removeLast();
+      }
+    }
+
+    await file.writeAsString(lineas.join('\n'));
   }
 
   void busquedaAleatoria() async {
-    String data = await rootBundle.loadString(tipoIdioma.rutaIdioma);
+    String idioma = await rootBundle.loadString(tipoIdioma.rutaIdioma);
+    bool hayExcepcion = false;
+    String excepcion = "";
+    if (tipoIdioma.excepciones != null){
+      excepcion = await rootBundle.loadString(tipoIdioma.excepciones!);
+      hayExcepcion = true;
+    }
 
-    if(tipoIdioma.split == null){
-      List<String> palabras = List<String>.from(json.decode(data));
+    if(tipoIdioma.split == ""){
+      List<String> palabras = List<String>.from(json.decode(idioma));
       diccionario = palabras
           .where((palabra) => palabra.length == nLetras)
           .map((palabra) => palabra.toUpperCase())
           .toList();
     } else {
-      diccionario = data.split(tipoIdioma.split!)
-          .where((palabra) => palabra.length == nLetras + 1)
-          .map((palabra) => palabra.toUpperCase())
-          .toList();
+      if(hayExcepcion) {
+        List<String> excepciones = excepcion.split(";");
+        diccionario = idioma.split(tipoIdioma.split)
+            .where((palabra) => palabra.length == nLetras)
+            .map((palabra) => palabra.toUpperCase())
+            .where((palabra) => !excepciones.any((caracter) => palabra.contains(caracter)))
+            .toList();
+      }
+      else {
+        diccionario = idioma.split(tipoIdioma.split)
+            .where((palabra) => palabra.length == nLetras)
+            .map((palabra) => palabra.toUpperCase())
+            .toList();
+      }
     }
 
     int numAleatorio = Random().nextInt(diccionario.length);
     palabra = diccionario[numAleatorio];
+    print(palabra);
   }
 
   Future<void> leerConfig() async {
@@ -167,6 +214,7 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
 
       inicio = DateTime.now();
 
+      textosIdioma = widget.textosIdioma;
     });
 
     super.initState();
@@ -181,7 +229,7 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
           color: Color.fromRGBO(30, 30, 30, 1),
           child: cargandoConfiguracion ? Center(
             child: CircularProgressIndicator(
-              color: Colors.white, // Cambiar color a azul
+              color: Colors.white,
             ),
           )
               : Container (
@@ -513,13 +561,13 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
                   duracion = fin.difference(inicio);
                   if (bombasUsadas == 0 && lupasUsadas == 0) {
                     puntuacion =
-                        nLetras / nIntentos * 1000 - duracion.inSeconds;
+                        (nLetras * 3) / (nIntentos * 2) * 1000 - duracion.inSeconds;
                   } else {
                     if (bombasUsadas == 0)
-                      puntuacion = nLetras / nIntentos * 1000 -
+                      puntuacion = (nLetras * 3) / (nIntentos * 2) * 1000 -
                           (duracion.inSeconds * (lupasUsadas * 2.2));
                     else if (lupasUsadas == 0)
-                      puntuacion = nLetras / nIntentos * 1000 -
+                      puntuacion = (nLetras * 3) / (nIntentos * 2) * 1000 -
                           (duracion.inSeconds * (bombasUsadas));
                   }
                   showDialog(
@@ -528,7 +576,7 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
                         AlertDialog(
                           title: Text(
                             textAlign: TextAlign.center,
-                            'VICTORIA',
+                            '${textosIdioma[3]}',
                             style: TextStyle(
                               fontSize: MediaQuery
                                   .of(context)
@@ -548,14 +596,21 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
                               Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 10),
                                   child: Text(
-                                      'Puntuacion:${puntuacion}\nTiempo:${duracion}')
+                                      '${textosIdioma[6]}: ${puntuacion}\n${textosIdioma[7]}: ${duracion}')
                               ),
                               Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 20),
+                                padding: EdgeInsets.symmetric(horizontal: 20,vertical: 30),
                                 child: TextField(
                                   controller: _textController,
                                   decoration: InputDecoration(
-                                    labelText: 'Introduce tu nombre',
+                                    labelText: '${textosIdioma[9]}',
+                                    labelStyle: TextStyle(color: Colors.yellowAccent),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.black),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.black),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -564,21 +619,19 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
                           actions: [
                             TextButton(
                               onPressed: () {
-                                escribirRanking("${_textController.value
-                                    .text};${puntuacion};${duracion};\n");
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => PaginaIncio()),
-                                );
+                                Navigator.of(context).pop();
+                                escribirRanking(_textController.value.text).then((_) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => PaginaIncio()),
+                                  );
+                                });
                               },
                               child: Text(
-                                'Volver',
-                                style: TextStyle(
-                                    color: Colors.yellowAccent,
-                                ),
+                                '${textosIdioma[8]}',
+                                style: TextStyle(color: Colors.yellowAccent),
                               ),
-                            )
+                            ),
                           ],
                           backgroundColor: Colors.green,
                         ),
@@ -613,7 +666,7 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
                       builder: (_) =>
                           AlertDialog(
                             title: Text(
-                                'DERROTA',
+                                '${textosIdioma[4]}',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: MediaQuery
@@ -629,11 +682,12 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
                             ),
                             content: Padding(
                               padding: EdgeInsets.symmetric(horizontal: 10),
-                              child: Text('La palabra magica era ${palabra}'),
+                              child: Text('${textosIdioma[10]} ${palabra}'),
                             ),
                             actions: [
                               TextButton(
                                   onPressed: () {
+                                    Navigator.of(context).pop();
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -641,7 +695,7 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
                                     );
                                   },
                                   child: Text(
-                                      'Volver',
+                                      '${textosIdioma[8]}',
                                       style: TextStyle(
                                         color: Colors.yellowAccent
                                       ),
@@ -658,7 +712,7 @@ class _PaginaJuego extends State<PaginaJuego> with SingleTickerProviderStateMixi
             }
           }
         },
-        child: Text("ENVIAR"),
+        child: Text("${textosIdioma[5]}"),
         style: ElevatedButton.styleFrom(
           primary: Colors.green,
           onPrimary: Colors.white,

@@ -1,0 +1,1 @@
+NUMERO DI CARATTERI,NUMERO DI TENTATIVI,INIZIO,VITTORIA,SCONFITTA,INVIARE,Punteggiatura,Tempo,Ritorno,Inserisci il tuo nome,La parola magica era,

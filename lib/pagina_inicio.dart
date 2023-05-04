@@ -7,17 +7,18 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 enum TipoIdioma {
-  espanol("espanol", "assets/textos/espanol.json", "assets/iconos/espana.png", null,["NUMERO DE CARACTERES","NUMERO DE INTENTOS","EMPEZAR"]),
-  frances("frances", "assets/textos/frances.txt", "assets/iconos/francia.png", ";",["NOMBRE DE CARACTÈRES","NOMBRE DE TENTATIVES","COMMENCER"]),
-  italiano("italiano", "assets/textos/italiano.txt", "assets/iconos/italia.png", "\n",["NUMERO DI CARATTERI","NUMERO DI TENTATIVI","INIZIO"]);
+  espanol("espanol", "assets/diccionarios/espanol.json", "assets/iconos/espana.png", "", "assets/idiomas/espanol.txt", null),
+  aleman("aleman", "assets/diccionarios/aleman.txt", "assets/iconos/alemania.png", ";", "assets/idiomas/aleman.txt", "assets/excepciones/aleman.txt"),
+  italiano("italiano", "assets/diccionarios/italiano.txt", "assets/iconos/italia.png", ";", "assets/idiomas/italiano.txt", null);
 
   final String idioma;
   final String rutaIdioma;
   final String rutaBandera;
-  final String? split;
-  final List<String> texto;
+  final String split;
+  final String texto;
+  final String? excepciones;
 
-  const TipoIdioma(this.idioma, this.rutaIdioma, this.rutaBandera, this.split,this.texto);
+  const TipoIdioma(this.idioma, this.rutaIdioma, this.rutaBandera, this.split, this.texto, this.excepciones);
 
   static TipoIdioma buscarIdioma(String Myidioma) {
     List<TipoIdioma> miLista = TipoIdioma.values;
@@ -45,6 +46,8 @@ class _PaginaIncio extends State<PaginaIncio>{
   int numeroIntentos=0;
   double va=0;
   int length=0;
+  List<String> textosIdioma=[];
+  bool cargandoConfiguracion = true;
 
 
   Future<void> escribirConfig(String linea) async {
@@ -93,21 +96,40 @@ class _PaginaIncio extends State<PaginaIncio>{
     }
   }
 
+  Future<void> leerIdioma() async {
+    String data = await rootBundle.loadString(tipoIdioma.texto);
+    textosIdioma = data.split(",");
+  }
+
   @override
   void initState() {
-    ()async {
+    Future.delayed(Duration.zero, () async {
       await copyRankingFile();
       await copyConfigFile();
       await leerConfig();
-    }();
+      await leerIdioma();
+
+      leerIdioma().whenComplete(() {
+        setState(() {
+          cargandoConfiguracion = false;
+        });
+      });
+    });
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
-        home: Scaffold(
+     home: Container(
+      color: Color.fromRGBO(30, 30, 30, 1),
+      child: cargandoConfiguracion ? Center(
+        child: CircularProgressIndicator(
+          color: Colors.white, // Cambiar color a azul
+        ),
+      ) :Scaffold(
+        resizeToAvoidBottomInset: false,
           appBar: AppBar(
             toolbarHeight: MediaQuery.of(context).size.width * 0.1,
             backgroundColor: Color.fromRGBO(30, 30, 30, 1),
@@ -121,7 +143,7 @@ class _PaginaIncio extends State<PaginaIncio>{
                       // Acción del botón
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => Ranking()),
+                        MaterialPageRoute(builder: (context) => Ranking(textosIdioma:textosIdioma)),
                       );
 
                     },
@@ -142,6 +164,9 @@ class _PaginaIncio extends State<PaginaIncio>{
                   onSelected: (value) {
                     setState(() {
                       tipoIdioma = value;
+                      ()async {
+                        await leerIdioma();
+                      }();
                     });
                   },
                   itemBuilder: (BuildContext context) {
@@ -160,10 +185,10 @@ class _PaginaIncio extends State<PaginaIncio>{
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center, // Centrar verticalmente
                           children: [
-                            Image.asset(TipoIdioma.frances.rutaBandera, width: iconSize),
+                            Image.asset(TipoIdioma.aleman.rutaBandera, width: iconSize),
                           ],
                         ),
-                        value: TipoIdioma.frances,
+                        value: TipoIdioma.aleman,
                       ),
                       PopupMenuItem(
                         child: Column(
@@ -204,367 +229,371 @@ class _PaginaIncio extends State<PaginaIncio>{
           ),
 
           body: SafeArea(
-            child: Container(
-                color: Color.fromRGBO(30, 30, 30,1),
-                child: Material(
-                  type: MaterialType.transparency,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Image.asset(
-                        'assets/iconos/logo.png',
-                        scale:MediaQuery.of(context).size.width * 0.0001,
-                      ),
-                      SizedBox(height: MediaQuery.of(context).size.width * 0.001), // Agrega espacio vertical,
-                      Text(
-                          tipoIdioma.texto[0],
-                          style:
-                          TextStyle(
-                            fontSize: MediaQuery.of(context).size.width * 0.07, // Tamaño de fuente
-                            fontWeight: FontWeight.bold, // Grosor de fuente
-                            fontStyle: FontStyle.italic, // Estilo de fuente
-                            color: Colors.yellowAccent, // Color del texto
-                            letterSpacing: 2.0, // Espaciado entre letras
-                            wordSpacing: 4.0, // Espaciado entre palabras// Sombra del texto
-                          )
-                      ),
-                      SizedBox(height: MediaQuery.of(context).size.width * 0.03), // Agrega espacio vertical
 
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.28, // Ancho del botón
-                            height: MediaQuery.of(context).size.width * 0.15, // Alto del botón
-                            child: ElevatedButton(
+            //child: SingleChildScrollView(
+              child: Container(
+                  color: Color.fromRGBO(30, 30, 30,1),
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Image.asset(
+                          'assets/iconos/logo.png',
+                          scale:MediaQuery.of(context).size.width * 0.0001,
+                        ),
+                        SizedBox(height: MediaQuery.of(context).size.width * 0.001), // Agrega espacio vertical,
+                        Text(
+                            textosIdioma[0],
+                            style:
+                            TextStyle(
+                              fontSize: MediaQuery.of(context).size.width * 0.07, // Tamaño de fuente
+                              fontWeight: FontWeight.bold, // Grosor de fuente
+                              fontStyle: FontStyle.italic, // Estilo de fuente
+                              color: Colors.yellowAccent, // Color del texto
+                              letterSpacing: 2.0, // Espaciado entre letras
+                              wordSpacing: 4.0, // Espaciado entre palabras// Sombra del texto
+                            )
+                        ),
+                        SizedBox(height: MediaQuery.of(context).size.width * 0.03), // Agrega espacio vertical
 
-                              onPressed: () {
-                                setState(() {
-                                  numeroCaracteres=4;
-                                });
-                              },
-                              child: Text(
-                                  '4',
-                                  style:
-                                  TextStyle(
-                                    fontSize: MediaQuery.of(context).size.width * 0.1,
-                                    fontWeight: FontWeight.bold,
-                                    fontStyle: FontStyle.italic,
-                                    color: Colors.black,
-                                    letterSpacing: 2.0,
-                                    wordSpacing: 4.0,
-                                  )
-                              ),
-                              style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                        (Set<MaterialState> states) {
-                                      if (numeroCaracteres==4)
-                                        return Colors.green; // Color cuando está presionado
-                                      return Colors.white; // Color de fondo por defecto
-                                    },
-                                  )
-                              ),
-                            ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.28, // Ancho del botón
+                              height: MediaQuery.of(context).size.width * 0.15, // Alto del botón
+                              child: ElevatedButton(
 
-                          ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.28, // Ancho del botón
-                            height: MediaQuery.of(context).size.width * 0.15, // Alto del botón
-                            child: ElevatedButton(
-                              onPressed: () {
-                                setState(() {
-                                  numeroCaracteres=5;
-                                });
-                              },
-                              child: Text(
-                                  '5',
-                                  style:
-                                  TextStyle(
-                                    fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
-                                    fontWeight: FontWeight.bold, // Grosor de fuente
-                                    fontStyle: FontStyle.italic, // Estilo de fuente
-                                    color: Colors.black, // Color del texto
-                                    letterSpacing: 2.0, // Espaciado entre letras
-                                    wordSpacing: 4.0, // Espaciado entre palabras
-                                  )),
-                              style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                        (Set<MaterialState> states) {
-                                      if (numeroCaracteres==5)
-                                        return Colors.green; // Color cuando está presionado
-                                      return Colors.white; // Color de fondo por defecto
-                                    },
-                                  )
-                              ),
-                            ),
-
-                          ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.28, // Ancho del botón
-                            height: MediaQuery.of(context).size.width * 0.15, // Alto del botón
-                            child: ElevatedButton(
-                              onPressed: () {
-                                // Acción al presionar el botón 3
-                                setState(() {
-                                  numeroCaracteres=6;
-                                });
-                              },
-                              child: Text(
-                                  '6',
-                                  style:
-                                  TextStyle(
-                                    fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
-                                    fontWeight: FontWeight.bold, // Grosor de fuente
-                                    fontStyle: FontStyle.italic, // Estilo de fuente
-                                    color: Colors.black, // Color del texto
-                                    letterSpacing: 2.0, // Espaciado entre letras
-                                    wordSpacing: 4.0, // Espaciado entre palabras
-                                  )
-                              ),
-                              style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                        (Set<MaterialState> states) {
-                                      if (numeroCaracteres==6)
-                                        return Colors.green; // Color cuando está presionado
-                                      return Colors.white; // Color de fondo por defecto
-                                    },
-                                  )
-                              ),
-                            ),
-
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: MediaQuery.of(context).size.width * 0.001), // Agrega espacio vertical
-                      Text(
-                          tipoIdioma.texto[1],
-                          style:
-                          TextStyle(
-                            fontSize: MediaQuery.of(context).size.width * 0.07, // Tamaño de fuente
-                            fontWeight: FontWeight.bold, // Grosor de fuente
-                            fontStyle: FontStyle.italic, // Estilo de fuente
-                            color: Colors.yellowAccent, // Color del texto
-                            letterSpacing: 2.0, // Espaciado entre letras
-                            wordSpacing: 4.0, // Espaciado entre palabras
-                          )
-                      ),
-                      SizedBox(height: MediaQuery.of(context).size.width * 0.03), // Agrega espacio vertical
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.15, // Ancho del botón
-                            height: MediaQuery.of(context).size.width * 0.15, // Alto del botón
-                            child: ElevatedButton(
-                              onPressed: () {
-                                // Acción al presionar el botón 3
-                                setState(() {
-                                  numeroIntentos=4;
-                                });
-                              },
-                              child: Text(
-                                  '4',
-                                  style:
-                                  TextStyle(
-                                    fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
-                                    fontWeight: FontWeight.bold, // Grosor de fuente
-                                    fontStyle: FontStyle.italic, // Estilo de fuente
-                                    color: Colors.black, // Color del texto
-                                    letterSpacing: 2.0, // Espaciado entre letras
-                                    wordSpacing: 4.0, // Espaciado entre palabras
-                                  )),
-                              style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                        (Set<MaterialState> states) {
-                                      if (numeroIntentos==4)
-                                        return Colors.green; // Color cuando está presionado
-                                      return Colors.white; // Color de fondo por defecto
-                                    },
-                                  )
-                              ),
-                            ),
-
-                          ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.15, // Ancho del botón
-                            height: MediaQuery.of(context).size.width * 0.15, // Alto del botón
-                            child: ElevatedButton(
-                              onPressed: () {
-                                // Acción al presionar el botón 3
-                                setState(() {
-                                  numeroIntentos=5;
-                                });
-                              },
-                              child: Text(
-                                  '5',
-                                  style:
-                                  TextStyle(
-                                    fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
-                                    fontWeight: FontWeight.bold, // Grosor de fuente
-                                    fontStyle: FontStyle.italic, // Estilo de fuente
-                                    color: Colors.black, // Color del texto
-                                    letterSpacing: 2.0, // Espaciado entre letras
-                                    wordSpacing: 4.0, // Espaciado entre palabras
-                                  )),
-                              style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                        (Set<MaterialState> states) {
-                                      if (numeroIntentos==5)
-                                        return Colors.green; // Color cuando está presionado
-                                      return Colors.white; // Color de fondo por defecto
-                                    },
-                                  )
-                              ),
-                            ),
-
-                          ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.15, // Ancho del botón
-                            height:MediaQuery.of(context).size.width * 0.15, // Alto del botón
-                            child: ElevatedButton(
-                              onPressed: () {
-                                // Acción al presionar el botón 3
-                                setState(() {
-                                  numeroIntentos=6;
-                                });
-                              },
-                              child: Text(
-                                  '6',
-                                  style:
-                                  TextStyle(
-                                    fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
-                                    fontWeight: FontWeight.bold, // Grosor de fuente
-                                    fontStyle: FontStyle.italic, // Estilo de fuente
-                                    color: Colors.black, // Color del texto
-                                    letterSpacing: 2.0, // Espaciado entre letras
-                                    wordSpacing: 4.0, // Espaciado entre palabras
-                                  )),
-                              style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                        (Set<MaterialState> states) {
-                                      if (numeroIntentos==6)
-                                        return Colors.green; // Color cuando está presionado
-                                      return Colors.white; // Color de fondo por defecto
-                                    },
-                                  )
-                              ),
-                            ),
-
-                          ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.15, // Ancho del botón
-                            height: MediaQuery.of(context).size.width * 0.15, // Alto del botón
-                            child: ElevatedButton(
-                              onPressed: () {
-                                // Acción al presionar el botón 3
-                                setState(() {
-                                  numeroIntentos=7;
-                                });
-                              },
-                              child: Text(
-                                  '7',
-                                  style:
-                                  TextStyle(
-                                    fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
-                                    fontWeight: FontWeight.bold, // Grosor de fuente
-                                    fontStyle: FontStyle.italic, // Estilo de fuente
-                                    color: Colors.black, // Color del texto
-                                    letterSpacing: 2.0, // Espaciado entre letras
-                                    wordSpacing: 4.0, // Espaciado entre palabras
-                                  )),
-                              style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                        (Set<MaterialState> states) {
-                                      if (numeroIntentos==7)
-                                        return Colors.green; // Color cuando está presionado
-                                      return Colors.white; // Color de fondo por defecto
-                                    },
-                                  )
-                              ),
-                            ),
-
-                          ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.15, // Ancho del botón
-                            height: MediaQuery.of(context).size.width * 0.15, // Alto del botón
-                            child: ElevatedButton(
-                              onPressed: () {
-                                // Acción al presionar el botón 3
-                                setState(() {
-                                  numeroIntentos=8;
-                                });
-                              },
-                              child: Text(
-                                  '8',
-                                  style:
-                                  TextStyle(
-                                    fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
-                                    fontWeight: FontWeight.bold, // Grosor de fuente
-                                    fontStyle: FontStyle.italic, // Estilo de fuente
-                                    color: Colors.black, // Color del texto
-                                    letterSpacing: 2.0, // Espaciado entre letras
-                                    wordSpacing: 4.0, // Espaciado entre palabras
-                                  )
-
-                              ),
-                              style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                        (Set<MaterialState> states) {
-                                      if (numeroIntentos==8)
-                                        return Colors.green; // Color cuando está presionado
-                                      return Colors.white; // Color de fondo por defecto
-                                    },
-                                  )
-                              ),
-                            ),
-
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: MediaQuery.of(context).size.width * 0.075), // Agrega espacio vertical
-                      SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.5, // Ancho del botón
-                          height: MediaQuery.of(context).size.width * 0.15, // Alto del botón
-                          child: Material(
-                            type: MaterialType.transparency,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                // Acción al presionar el botón
-
-                                String linea='${tipoIdioma.idioma};${numeroCaracteres};${numeroIntentos};';
-                                escribirConfig(linea);
-
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => PaginaJuego())
-                                );
-                              },
-                              child: Text(
-                                  tipoIdioma.texto[2],
-                                  style:TextStyle(
-                                    fontSize: MediaQuery.of(context).size.width * 0.061, // Tamaño de fuente
-                                    fontWeight: FontWeight.bold, // Grosor de fuente
-                                    fontStyle: FontStyle.italic, // Estilo de fuente
-                                    color: Colors.black, // Color del texto
-                                    letterSpacing: 2.0, // Espaciado entre letras
-                                    wordSpacing: 4.0, // Espaciado entre palabras
-                                  )),
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                      (Set<MaterialState> states) {
-                                    return Colors.deepOrange; // Color de fondo por defecto
-                                  },
+                                onPressed: () {
+                                  setState(() {
+                                    numeroCaracteres=4;
+                                  });
+                                },
+                                child: Text(
+                                    '4',
+                                    style:
+                                    TextStyle(
+                                      fontSize: MediaQuery.of(context).size.width * 0.1,
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.black,
+                                      letterSpacing: 2.0,
+                                      wordSpacing: 4.0,
+                                    )
+                                ),
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                                          (Set<MaterialState> states) {
+                                        if (numeroCaracteres==4)
+                                          return Colors.green; // Color cuando está presionado
+                                        return Colors.white; // Color de fondo por defecto
+                                      },
+                                    )
                                 ),
                               ),
+
                             ),
-                          )
-                      ),
-                    ],
-                  ),
-                )
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.28, // Ancho del botón
+                              height: MediaQuery.of(context).size.width * 0.15, // Alto del botón
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    numeroCaracteres=5;
+                                  });
+                                },
+                                child: Text(
+                                    '5',
+                                    style:
+                                    TextStyle(
+                                      fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
+                                      fontWeight: FontWeight.bold, // Grosor de fuente
+                                      fontStyle: FontStyle.italic, // Estilo de fuente
+                                      color: Colors.black, // Color del texto
+                                      letterSpacing: 2.0, // Espaciado entre letras
+                                      wordSpacing: 4.0, // Espaciado entre palabras
+                                    )),
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                                          (Set<MaterialState> states) {
+                                        if (numeroCaracteres==5)
+                                          return Colors.green; // Color cuando está presionado
+                                        return Colors.white; // Color de fondo por defecto
+                                      },
+                                    )
+                                ),
+                              ),
+
+                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.28, // Ancho del botón
+                              height: MediaQuery.of(context).size.width * 0.15, // Alto del botón
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  // Acción al presionar el botón 3
+                                  setState(() {
+                                    numeroCaracteres=6;
+                                  });
+                                },
+                                child: Text(
+                                    '6',
+                                    style:
+                                    TextStyle(
+                                      fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
+                                      fontWeight: FontWeight.bold, // Grosor de fuente
+                                      fontStyle: FontStyle.italic, // Estilo de fuente
+                                      color: Colors.black, // Color del texto
+                                      letterSpacing: 2.0, // Espaciado entre letras
+                                      wordSpacing: 4.0, // Espaciado entre palabras
+                                    )
+                                ),
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                                          (Set<MaterialState> states) {
+                                        if (numeroCaracteres==6)
+                                          return Colors.green; // Color cuando está presionado
+                                        return Colors.white; // Color de fondo por defecto
+                                      },
+                                    )
+                                ),
+                              ),
+
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: MediaQuery.of(context).size.width * 0.02), // Agrega espacio vertical
+                        Text(
+                            textosIdioma[1],
+                            style:
+                            TextStyle(
+                              fontSize: MediaQuery.of(context).size.width * 0.07, // Tamaño de fuente
+                              fontWeight: FontWeight.bold, // Grosor de fuente
+                              fontStyle: FontStyle.italic, // Estilo de fuente
+                              color: Colors.yellowAccent, // Color del texto
+                              letterSpacing: 2.0, // Espaciado entre letras
+                              wordSpacing: 4.0, // Espaciado entre palabras
+                            )
+                        ),
+                        SizedBox(height: MediaQuery.of(context).size.width * 0.03), // Agrega espacio vertical
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.15, // Ancho del botón
+                              height: MediaQuery.of(context).size.width * 0.15, // Alto del botón
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  // Acción al presionar el botón 3
+                                  setState(() {
+                                    numeroIntentos=4;
+                                  });
+                                },
+                                child: Text(
+                                    '4',
+                                    style:
+                                    TextStyle(
+                                      fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
+                                      fontWeight: FontWeight.bold, // Grosor de fuente
+                                      fontStyle: FontStyle.italic, // Estilo de fuente
+                                      color: Colors.black, // Color del texto
+                                      letterSpacing: 2.0, // Espaciado entre letras
+                                      wordSpacing: 4.0, // Espaciado entre palabras
+                                    )),
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                                          (Set<MaterialState> states) {
+                                        if (numeroIntentos==4)
+                                          return Colors.green; // Color cuando está presionado
+                                        return Colors.white; // Color de fondo por defecto
+                                      },
+                                    )
+                                ),
+                              ),
+
+                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.15, // Ancho del botón
+                              height: MediaQuery.of(context).size.width * 0.15, // Alto del botón
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  // Acción al presionar el botón 3
+                                  setState(() {
+                                    numeroIntentos=5;
+                                  });
+                                },
+                                child: Text(
+                                    '5',
+                                    style:
+                                    TextStyle(
+                                      fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
+                                      fontWeight: FontWeight.bold, // Grosor de fuente
+                                      fontStyle: FontStyle.italic, // Estilo de fuente
+                                      color: Colors.black, // Color del texto
+                                      letterSpacing: 2.0, // Espaciado entre letras
+                                      wordSpacing: 4.0, // Espaciado entre palabras
+                                    )),
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                                          (Set<MaterialState> states) {
+                                        if (numeroIntentos==5)
+                                          return Colors.green; // Color cuando está presionado
+                                        return Colors.white; // Color de fondo por defecto
+                                      },
+                                    )
+                                ),
+                              ),
+
+                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.15, // Ancho del botón
+                              height:MediaQuery.of(context).size.width * 0.15, // Alto del botón
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  // Acción al presionar el botón 3
+                                  setState(() {
+                                    numeroIntentos=6;
+                                  });
+                                },
+                                child: Text(
+                                    '6',
+                                    style:
+                                    TextStyle(
+                                      fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
+                                      fontWeight: FontWeight.bold, // Grosor de fuente
+                                      fontStyle: FontStyle.italic, // Estilo de fuente
+                                      color: Colors.black, // Color del texto
+                                      letterSpacing: 2.0, // Espaciado entre letras
+                                      wordSpacing: 4.0, // Espaciado entre palabras
+                                    )),
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                                          (Set<MaterialState> states) {
+                                        if (numeroIntentos==6)
+                                          return Colors.green; // Color cuando está presionado
+                                        return Colors.white; // Color de fondo por defecto
+                                      },
+                                    )
+                                ),
+                              ),
+
+                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.15, // Ancho del botón
+                              height: MediaQuery.of(context).size.width * 0.15, // Alto del botón
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  // Acción al presionar el botón 3
+                                  setState(() {
+                                    numeroIntentos=7;
+                                  });
+                                },
+                                child: Text(
+                                    '7',
+                                    style:
+                                    TextStyle(
+                                      fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
+                                      fontWeight: FontWeight.bold, // Grosor de fuente
+                                      fontStyle: FontStyle.italic, // Estilo de fuente
+                                      color: Colors.black, // Color del texto
+                                      letterSpacing: 2.0, // Espaciado entre letras
+                                      wordSpacing: 4.0, // Espaciado entre palabras
+                                    )),
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                                          (Set<MaterialState> states) {
+                                        if (numeroIntentos==7)
+                                          return Colors.green; // Color cuando está presionado
+                                        return Colors.white; // Color de fondo por defecto
+                                      },
+                                    )
+                                ),
+                              ),
+
+                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.15, // Ancho del botón
+                              height: MediaQuery.of(context).size.width * 0.15, // Alto del botón
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  // Acción al presionar el botón 3
+                                  setState(() {
+                                    numeroIntentos=8;
+                                  });
+                                },
+                                child: Text(
+                                    '8',
+                                    style:
+                                    TextStyle(
+                                      fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
+                                      fontWeight: FontWeight.bold, // Grosor de fuente
+                                      fontStyle: FontStyle.italic, // Estilo de fuente
+                                      color: Colors.black, // Color del texto
+                                      letterSpacing: 2.0, // Espaciado entre letras
+                                      wordSpacing: 4.0, // Espaciado entre palabras
+                                    )
+
+                                ),
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                                          (Set<MaterialState> states) {
+                                        if (numeroIntentos==8)
+                                          return Colors.green; // Color cuando está presionado
+                                        return Colors.white; // Color de fondo por defecto
+                                      },
+                                    )
+                                ),
+                              ),
+
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: MediaQuery.of(context).size.width * 0.075), // Agrega espacio vertical
+                        SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.5, // Ancho del botón
+                            height: MediaQuery.of(context).size.width * 0.15, // Alto del botón
+                            child: Material(
+                              type: MaterialType.transparency,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  // Acción al presionar el botón
+
+                                  String linea='${tipoIdioma.idioma};${numeroCaracteres};${numeroIntentos};';
+                                  escribirConfig(linea);
+
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => PaginaJuego(textosIdioma:textosIdioma))
+                                  );
+                                },
+                                child: Text(
+                                    textosIdioma[2],
+                                    style:TextStyle(
+                                      fontSize: MediaQuery.of(context).size.width * 0.061, // Tamaño de fuente
+                                      fontWeight: FontWeight.bold, // Grosor de fuente
+                                      fontStyle: FontStyle.italic, // Estilo de fuente
+                                      color: Colors.white, // Color del texto
+                                      letterSpacing: 2.0, // Espaciado entre letras
+                                      wordSpacing: 4.0, // Espaciado entre palabras
+                                    )),
+                                style: ButtonStyle(
+                                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                                        (Set<MaterialState> states) {
+                                      return Colors.green;
+                                    },
+                                  ),
+                                ),
+                              ),
+                            )
+                        ),
+                      ],
+                    ),
+                  )
+              ),
             ),
           ),
-      ),
+        ),
+      //),
     );
   }
 }

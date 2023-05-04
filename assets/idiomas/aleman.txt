@@ -1,0 +1,1 @@
+ANZAHL DER ZEICHEN,ANZAHL DER VERSUCHE,STARTEN,GEWINNEN,NIEDERLAGEN,SENDEN,Interpunktion,Zeit,Return,Geben Sie Ihren Namen ein,Das Zauberwort war,
