@@ -126,7 +126,7 @@ class _PaginaIncio extends State<PaginaIncio>{
       color: Color.fromRGBO(30, 30, 30, 1),
       child: cargandoConfiguracion ? Center(
         child: CircularProgressIndicator(
-          color: Colors.white, // Cambiar color a azul
+          color: Colors.white,
         ),
       ) :Scaffold(
         resizeToAvoidBottomInset: false,
@@ -140,7 +140,7 @@ class _PaginaIncio extends State<PaginaIncio>{
                 return Container(
                   child: GestureDetector(
                     onTap: () {
-                      // Acción del botón
+
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => Ranking(textosIdioma:textosIdioma)),
@@ -174,7 +174,7 @@ class _PaginaIncio extends State<PaginaIncio>{
                     List<PopupMenuItem<TipoIdioma>> _idiomas = [
                       PopupMenuItem(
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center, // Centrar verticalmente
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Image.asset(TipoIdioma.espanol.rutaBandera, width: iconSize),
                           ],
@@ -183,7 +183,7 @@ class _PaginaIncio extends State<PaginaIncio>{
                       ),
                       PopupMenuItem(
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center, // Centrar verticalmente
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Image.asset(TipoIdioma.aleman.rutaBandera, width: iconSize),
                           ],
@@ -192,7 +192,7 @@ class _PaginaIncio extends State<PaginaIncio>{
                       ),
                       PopupMenuItem(
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center, // Centrar verticalmente
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Image.asset(TipoIdioma.italiano.rutaBandera, width: iconSize),
                           ],
@@ -218,9 +218,9 @@ class _PaginaIncio extends State<PaginaIncio>{
                       );
                     },
                   ),
-                  elevation: 10, // Establecer la elevación del menú desplegable
+                  elevation: 10,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10), // Establecer la forma del menú desplegable
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
 
@@ -229,8 +229,6 @@ class _PaginaIncio extends State<PaginaIncio>{
           ),
 
           body: SafeArea(
-
-            //child: SingleChildScrollView(
               child: Container(
                   color: Color.fromRGBO(30, 30, 30,1),
                   child: Material(
@@ -242,27 +240,27 @@ class _PaginaIncio extends State<PaginaIncio>{
                           'assets/iconos/logo.png',
                           scale:MediaQuery.of(context).size.width * 0.0001,
                         ),
-                        SizedBox(height: MediaQuery.of(context).size.width * 0.001), // Agrega espacio vertical,
+                        SizedBox(height: MediaQuery.of(context).size.width * 0.001),
                         Text(
                             textosIdioma[0],
                             style:
                             TextStyle(
-                              fontSize: MediaQuery.of(context).size.width * 0.07, // Tamaño de fuente
-                              fontWeight: FontWeight.bold, // Grosor de fuente
-                              fontStyle: FontStyle.italic, // Estilo de fuente
-                              color: Colors.yellowAccent, // Color del texto
-                              letterSpacing: 2.0, // Espaciado entre letras
-                              wordSpacing: 4.0, // Espaciado entre palabras// Sombra del texto
+                              fontSize: MediaQuery.of(context).size.width * 0.07,
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic,
+                              color: Colors.yellowAccent,
+                              letterSpacing: 2.0,
+                              wordSpacing: 4.0,
                             )
                         ),
-                        SizedBox(height: MediaQuery.of(context).size.width * 0.03), // Agrega espacio vertical
+                        SizedBox(height: MediaQuery.of(context).size.width * 0.03),
 
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.28, // Ancho del botón
-                              height: MediaQuery.of(context).size.width * 0.15, // Alto del botón
+                              width: MediaQuery.of(context).size.width * 0.28,
+                              height: MediaQuery.of(context).size.width * 0.15,
                               child: ElevatedButton(
 
                                 onPressed: () {
@@ -286,8 +284,8 @@ class _PaginaIncio extends State<PaginaIncio>{
                                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
                                           (Set<MaterialState> states) {
                                         if (numeroCaracteres==4)
-                                          return Colors.green; // Color cuando está presionado
-                                        return Colors.white; // Color de fondo por defecto
+                                          return Colors.green;
+                                        return Colors.white;
                                       },
                                     )
                                 ),
@@ -295,8 +293,8 @@ class _PaginaIncio extends State<PaginaIncio>{
 
                             ),
                             SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.28, // Ancho del botón
-                              height: MediaQuery.of(context).size.width * 0.15, // Alto del botón
+                              width: MediaQuery.of(context).size.width * 0.28,
+                              height: MediaQuery.of(context).size.width * 0.15,
                               child: ElevatedButton(
                                 onPressed: () {
                                   setState(() {
@@ -307,19 +305,19 @@ class _PaginaIncio extends State<PaginaIncio>{
                                     '5',
                                     style:
                                     TextStyle(
-                                      fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
-                                      fontWeight: FontWeight.bold, // Grosor de fuente
-                                      fontStyle: FontStyle.italic, // Estilo de fuente
-                                      color: Colors.black, // Color del texto
-                                      letterSpacing: 2.0, // Espaciado entre letras
-                                      wordSpacing: 4.0, // Espaciado entre palabras
+                                      fontSize: MediaQuery.of(context).size.width * 0.1,
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.black,
+                                      letterSpacing: 2.0,
+                                      wordSpacing: 4.0,
                                     )),
                                 style: ButtonStyle(
                                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
                                           (Set<MaterialState> states) {
                                         if (numeroCaracteres==5)
-                                          return Colors.green; // Color cuando está presionado
-                                        return Colors.white; // Color de fondo por defecto
+                                          return Colors.green;
+                                        return Colors.white;
                                       },
                                     )
                                 ),
@@ -327,11 +325,11 @@ class _PaginaIncio extends State<PaginaIncio>{
 
                             ),
                             SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.28, // Ancho del botón
-                              height: MediaQuery.of(context).size.width * 0.15, // Alto del botón
+                              width: MediaQuery.of(context).size.width * 0.28,
+                              height: MediaQuery.of(context).size.width * 0.15,
                               child: ElevatedButton(
                                 onPressed: () {
-                                  // Acción al presionar el botón 3
+
                                   setState(() {
                                     numeroCaracteres=6;
                                   });
@@ -340,20 +338,20 @@ class _PaginaIncio extends State<PaginaIncio>{
                                     '6',
                                     style:
                                     TextStyle(
-                                      fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
-                                      fontWeight: FontWeight.bold, // Grosor de fuente
-                                      fontStyle: FontStyle.italic, // Estilo de fuente
-                                      color: Colors.black, // Color del texto
-                                      letterSpacing: 2.0, // Espaciado entre letras
-                                      wordSpacing: 4.0, // Espaciado entre palabras
+                                      fontSize: MediaQuery.of(context).size.width * 0.1,
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.black,
+                                      letterSpacing: 2.0,
+                                      wordSpacing: 4.0,
                                     )
                                 ),
                                 style: ButtonStyle(
                                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
                                           (Set<MaterialState> states) {
                                         if (numeroCaracteres==6)
-                                          return Colors.green; // Color cuando está presionado
-                                        return Colors.white; // Color de fondo por defecto
+                                          return Colors.green;
+                                        return Colors.white;
                                       },
                                     )
                                 ),
@@ -362,29 +360,29 @@ class _PaginaIncio extends State<PaginaIncio>{
                             ),
                           ],
                         ),
-                        SizedBox(height: MediaQuery.of(context).size.width * 0.02), // Agrega espacio vertical
+                        SizedBox(height: MediaQuery.of(context).size.width * 0.02),
                         Text(
                             textosIdioma[1],
                             style:
                             TextStyle(
-                              fontSize: MediaQuery.of(context).size.width * 0.07, // Tamaño de fuente
-                              fontWeight: FontWeight.bold, // Grosor de fuente
-                              fontStyle: FontStyle.italic, // Estilo de fuente
-                              color: Colors.yellowAccent, // Color del texto
-                              letterSpacing: 2.0, // Espaciado entre letras
-                              wordSpacing: 4.0, // Espaciado entre palabras
+                              fontSize: MediaQuery.of(context).size.width * 0.07,
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic,
+                              color: Colors.yellowAccent,
+                              letterSpacing: 2.0,
+                              wordSpacing: 4.0,
                             )
                         ),
-                        SizedBox(height: MediaQuery.of(context).size.width * 0.03), // Agrega espacio vertical
+                        SizedBox(height: MediaQuery.of(context).size.width * 0.03),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.15, // Ancho del botón
-                              height: MediaQuery.of(context).size.width * 0.15, // Alto del botón
+                              width: MediaQuery.of(context).size.width * 0.15,
+                              height: MediaQuery.of(context).size.width * 0.15,
                               child: ElevatedButton(
                                 onPressed: () {
-                                  // Acción al presionar el botón 3
+
                                   setState(() {
                                     numeroIntentos=4;
                                   });
@@ -393,19 +391,19 @@ class _PaginaIncio extends State<PaginaIncio>{
                                     '4',
                                     style:
                                     TextStyle(
-                                      fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
-                                      fontWeight: FontWeight.bold, // Grosor de fuente
-                                      fontStyle: FontStyle.italic, // Estilo de fuente
-                                      color: Colors.black, // Color del texto
-                                      letterSpacing: 2.0, // Espaciado entre letras
-                                      wordSpacing: 4.0, // Espaciado entre palabras
+                                      fontSize: MediaQuery.of(context).size.width * 0.1,
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.black,
+                                      letterSpacing: 2.0,
+                                      wordSpacing: 4.0,
                                     )),
                                 style: ButtonStyle(
                                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
                                           (Set<MaterialState> states) {
                                         if (numeroIntentos==4)
-                                          return Colors.green; // Color cuando está presionado
-                                        return Colors.white; // Color de fondo por defecto
+                                          return Colors.green;
+                                        return Colors.white;
                                       },
                                     )
                                 ),
@@ -413,11 +411,10 @@ class _PaginaIncio extends State<PaginaIncio>{
 
                             ),
                             SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.15, // Ancho del botón
-                              height: MediaQuery.of(context).size.width * 0.15, // Alto del botón
+                              width: MediaQuery.of(context).size.width * 0.15,
+                              height: MediaQuery.of(context).size.width * 0.15,
                               child: ElevatedButton(
                                 onPressed: () {
-                                  // Acción al presionar el botón 3
                                   setState(() {
                                     numeroIntentos=5;
                                   });
@@ -426,19 +423,19 @@ class _PaginaIncio extends State<PaginaIncio>{
                                     '5',
                                     style:
                                     TextStyle(
-                                      fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
-                                      fontWeight: FontWeight.bold, // Grosor de fuente
-                                      fontStyle: FontStyle.italic, // Estilo de fuente
-                                      color: Colors.black, // Color del texto
-                                      letterSpacing: 2.0, // Espaciado entre letras
-                                      wordSpacing: 4.0, // Espaciado entre palabras
+                                      fontSize: MediaQuery.of(context).size.width * 0.1,
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.black,
+                                      letterSpacing: 2.0,
+                                      wordSpacing: 4.0,
                                     )),
                                 style: ButtonStyle(
                                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
                                           (Set<MaterialState> states) {
                                         if (numeroIntentos==5)
-                                          return Colors.green; // Color cuando está presionado
-                                        return Colors.white; // Color de fondo por defecto
+                                          return Colors.green;
+                                        return Colors.white;
                                       },
                                     )
                                 ),
@@ -446,11 +443,11 @@ class _PaginaIncio extends State<PaginaIncio>{
 
                             ),
                             SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.15, // Ancho del botón
-                              height:MediaQuery.of(context).size.width * 0.15, // Alto del botón
+                              width: MediaQuery.of(context).size.width * 0.15,
+                              height:MediaQuery.of(context).size.width * 0.15,
                               child: ElevatedButton(
                                 onPressed: () {
-                                  // Acción al presionar el botón 3
+
                                   setState(() {
                                     numeroIntentos=6;
                                   });
@@ -459,19 +456,19 @@ class _PaginaIncio extends State<PaginaIncio>{
                                     '6',
                                     style:
                                     TextStyle(
-                                      fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
-                                      fontWeight: FontWeight.bold, // Grosor de fuente
-                                      fontStyle: FontStyle.italic, // Estilo de fuente
-                                      color: Colors.black, // Color del texto
-                                      letterSpacing: 2.0, // Espaciado entre letras
-                                      wordSpacing: 4.0, // Espaciado entre palabras
+                                      fontSize: MediaQuery.of(context).size.width * 0.1,
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.black,
+                                      letterSpacing: 2.0,
+                                      wordSpacing: 4.0,
                                     )),
                                 style: ButtonStyle(
                                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
                                           (Set<MaterialState> states) {
                                         if (numeroIntentos==6)
-                                          return Colors.green; // Color cuando está presionado
-                                        return Colors.white; // Color de fondo por defecto
+                                          return Colors.green;
+                                        return Colors.white;
                                       },
                                     )
                                 ),
@@ -479,8 +476,8 @@ class _PaginaIncio extends State<PaginaIncio>{
 
                             ),
                             SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.15, // Ancho del botón
-                              height: MediaQuery.of(context).size.width * 0.15, // Alto del botón
+                              width: MediaQuery.of(context).size.width * 0.15,
+                              height: MediaQuery.of(context).size.width * 0.15,
                               child: ElevatedButton(
                                 onPressed: () {
                                   // Acción al presionar el botón 3
@@ -492,19 +489,19 @@ class _PaginaIncio extends State<PaginaIncio>{
                                     '7',
                                     style:
                                     TextStyle(
-                                      fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
-                                      fontWeight: FontWeight.bold, // Grosor de fuente
-                                      fontStyle: FontStyle.italic, // Estilo de fuente
-                                      color: Colors.black, // Color del texto
-                                      letterSpacing: 2.0, // Espaciado entre letras
-                                      wordSpacing: 4.0, // Espaciado entre palabras
+                                      fontSize: MediaQuery.of(context).size.width * 0.1,
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.black,
+                                      letterSpacing: 2.0,
+                                      wordSpacing: 4.0,
                                     )),
                                 style: ButtonStyle(
                                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
                                           (Set<MaterialState> states) {
                                         if (numeroIntentos==7)
-                                          return Colors.green; // Color cuando está presionado
-                                        return Colors.white; // Color de fondo por defecto
+                                          return Colors.green;
+                                        return Colors.white;
                                       },
                                     )
                                 ),
@@ -512,11 +509,11 @@ class _PaginaIncio extends State<PaginaIncio>{
 
                             ),
                             SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.15, // Ancho del botón
-                              height: MediaQuery.of(context).size.width * 0.15, // Alto del botón
+                              width: MediaQuery.of(context).size.width * 0.15,
+                              height: MediaQuery.of(context).size.width * 0.15,
                               child: ElevatedButton(
                                 onPressed: () {
-                                  // Acción al presionar el botón 3
+
                                   setState(() {
                                     numeroIntentos=8;
                                   });
@@ -525,12 +522,12 @@ class _PaginaIncio extends State<PaginaIncio>{
                                     '8',
                                     style:
                                     TextStyle(
-                                      fontSize: MediaQuery.of(context).size.width * 0.1, // Tamaño de fuente
-                                      fontWeight: FontWeight.bold, // Grosor de fuente
-                                      fontStyle: FontStyle.italic, // Estilo de fuente
-                                      color: Colors.black, // Color del texto
-                                      letterSpacing: 2.0, // Espaciado entre letras
-                                      wordSpacing: 4.0, // Espaciado entre palabras
+                                      fontSize: MediaQuery.of(context).size.width * 0.1,
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.black,
+                                      letterSpacing: 2.0,
+                                      wordSpacing: 4.0,
                                     )
 
                                 ),
@@ -538,8 +535,8 @@ class _PaginaIncio extends State<PaginaIncio>{
                                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
                                           (Set<MaterialState> states) {
                                         if (numeroIntentos==8)
-                                          return Colors.green; // Color cuando está presionado
-                                        return Colors.white; // Color de fondo por defecto
+                                          return Colors.green;
+                                        return Colors.white;
                                       },
                                     )
                                 ),
@@ -548,15 +545,15 @@ class _PaginaIncio extends State<PaginaIncio>{
                             ),
                           ],
                         ),
-                        SizedBox(height: MediaQuery.of(context).size.width * 0.075), // Agrega espacio vertical
+                        SizedBox(height: MediaQuery.of(context).size.width * 0.075),
                         SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.5, // Ancho del botón
-                            height: MediaQuery.of(context).size.width * 0.15, // Alto del botón
+                            width: MediaQuery.of(context).size.width * 0.5,
+                            height: MediaQuery.of(context).size.width * 0.15,
                             child: Material(
                               type: MaterialType.transparency,
                               child: ElevatedButton(
                                 onPressed: () {
-                                  // Acción al presionar el botón
+
 
                                   String linea='${tipoIdioma.idioma};${numeroCaracteres};${numeroIntentos};';
                                   escribirConfig(linea);
@@ -569,12 +566,12 @@ class _PaginaIncio extends State<PaginaIncio>{
                                 child: Text(
                                     textosIdioma[2],
                                     style:TextStyle(
-                                      fontSize: MediaQuery.of(context).size.width * 0.061, // Tamaño de fuente
-                                      fontWeight: FontWeight.bold, // Grosor de fuente
-                                      fontStyle: FontStyle.italic, // Estilo de fuente
-                                      color: Colors.white, // Color del texto
-                                      letterSpacing: 2.0, // Espaciado entre letras
-                                      wordSpacing: 4.0, // Espaciado entre palabras
+                                      fontSize: MediaQuery.of(context).size.width * 0.061,
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.white,
+                                      letterSpacing: 2.0,
+                                      wordSpacing: 4.0,
                                     )),
                                 style: ButtonStyle(
                                   backgroundColor: MaterialStateProperty.resolveWith<Color>(
