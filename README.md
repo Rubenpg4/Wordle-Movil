@@ -1,1 +1,1 @@
-Aplicación Movil, juego Wordle completamente funcional
+Aplicación Movil, juego Wordle
